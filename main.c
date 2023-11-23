@@ -16,7 +16,7 @@ typedef struct _World {
     double xran, yran;
     int width, height;
     Fruit *f;
-    double dt;
+    double dt, e;
     Vector gravity;
 } World;
 
@@ -26,17 +26,20 @@ void vecMultAdd(Vector *a, Vector b, double k) {
 }
 
 double vecDist2(Vector a, Vector b) {
-    return (a.x-b.x) * (a.x-b.x) + (a.y-b.y) * (a.y-b.y);
+    double dx = a.x - b.x;
+    double dy = a.y - b.y;
+    return dx * dx + dy * dy;
 }
 
 Fruit *createFruit(double x, double y, double r) {
     Fruit *f = (Fruit*)malloc(sizeof(Fruit));
     f->x.x = x;
     f->x.y = y;
-    f->v.x = 0.;
+    f->v.x = 0.5;
     f->v.y = 0.;
     f->r = r;
-    f->prev = f->next = NULL;
+    f->prev = NULL;
+    f->next = NULL;
     return f;
 }
 
@@ -48,17 +51,18 @@ World *createWorld() {
     world->height = 20;
     world->f = NULL;
     world->dt = 0.1;
+    world->e = 0.3;
     world->gravity.x = 0.;
     world->gravity.y = 0.8;
     return world;
 }
 
 void destroyWorld(World *world) {
-    Fruit *f1 = world->f, *f2 = NULL;
-    while(f1 != NULL) {
-        f2 = f1;
-        f1 = f1->prev;
-        free(f2);
+    Fruit *f = world->f, *fp = NULL;
+    while(f != NULL) {
+        fp = f->prev;
+        free(f);
+        f = fp;
     }
     free(world);
 }
@@ -75,6 +79,20 @@ void applyGravity(World *world) {
     Fruit *f = world->f;
     while(f != NULL) {
         vecMultAdd(&(f->v), world->gravity, world->dt);
+        f = f->prev;
+    }
+}
+
+void applyCollision(World *world) {
+    Fruit *f = world->f;
+    while(f != NULL) {
+        if(f->x.y + f->r > world->yran && f->v.y > 0) {
+            f->v.y *= -world->e;
+        }
+        if(f->x.x - f->r < 0 && f->v.x < 0 ||
+           f->x.x + f->r > world->xran && f->v.x > 0) {
+            f->v.x *= -world->e;
+        }
         f = f->prev;
     }
 }
@@ -125,9 +143,9 @@ void display(World *world) {
 void run(World *world) {
     struct timespec delay = {.tv_nsec = world->dt * 1E9};
     Fruit *f;
-    printf("%p\n", world->f);
     for(int ti = 0; ti < 50; ti++) {
         applyGravity(world);
+        applyCollision(world);
         move(world);
         display(world);
         printf("ti = %d\n", ti);
@@ -139,7 +157,6 @@ int main(int argc, char **argv) {
     World *world = createWorld();
     addFruit(world, createFruit(1., 1.2, 0.4));
     addFruit(world, createFruit(0.2, 2.2, 0.2));
-    printf("%p\n", world->f);
     run(world);
     destroyWorld(world);
     return 0;
