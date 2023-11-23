@@ -7,7 +7,7 @@ typedef struct _Vector {
 } Vector;
 
 typedef struct _Fruit {
-    Vector x;
+    Vector x, v;
     double r;
     struct _Fruit *prev, *next;
 } Fruit;
@@ -17,9 +17,15 @@ typedef struct _World {
     int width, height;
     Fruit *f;
     double dt;
+    Vector gravity;
 } World;
 
-double dist2(Vector a, Vector b) {
+void vecMultAdd(Vector *a, Vector b, double k) {
+    a->x += b.x * k;
+    a->y += b.y * k;
+}
+
+double vecDist2(Vector a, Vector b) {
     return (a.x-b.x) * (a.x-b.x) + (a.y-b.y) * (a.y-b.y);
 }
 
@@ -27,6 +33,8 @@ Fruit *createFruit(double x, double y, double r) {
     Fruit *f = (Fruit*)malloc(sizeof(Fruit));
     f->x.x = x;
     f->x.y = y;
+    f->v.x = 0.;
+    f->v.y = 0.;
     f->r = r;
     f->prev = f->next = NULL;
     return f;
@@ -39,7 +47,9 @@ World *createWorld() {
     world->width = (int)(20 * 2.5333 * 2. / 3.);
     world->height = 20;
     world->f = NULL;
-    world->dt = .2;
+    world->dt = 0.1;
+    world->gravity.x = 0.;
+    world->gravity.y = 0.8;
     return world;
 }
 
@@ -61,6 +71,22 @@ void addFruit(World *world, Fruit *newf) {
     world->f = newf;
 }
 
+void applyGravity(World *world) {
+    Fruit *f = world->f;
+    while(f != NULL) {
+        vecMultAdd(&(f->v), world->gravity, world->dt);
+        f = f->prev;
+    }
+}
+
+void move(World *world) {
+    Fruit *f = world->f;
+    while(f != NULL) {
+        vecMultAdd(&(f->x), f->v, world->dt);
+        f = f->prev;
+    }
+}
+
 Vector getWorldCoord(World *world, int i, int j) {
     Vector x;
     x.x = (j + .5) * world->xran / world->width;
@@ -72,7 +98,7 @@ char getpixel(World *world, int i, int j) {
     Vector x = getWorldCoord(world, i, j);
     Fruit *f = world->f;
     while(f != NULL) {
-        if(dist2(x, f->x) < f->r * f->r) {
+        if(vecDist2(x, f->x) < f->r * f->r) {
             return '*';
         }
         f = f->prev;
@@ -98,7 +124,11 @@ void display(World *world) {
 
 void run(World *world) {
     struct timespec delay = {.tv_nsec = world->dt * 1E9};
-    for(int ti = 0; ti < 20; ti++) {
+    Fruit *f;
+    printf("%p\n", world->f);
+    for(int ti = 0; ti < 50; ti++) {
+        applyGravity(world);
+        move(world);
         display(world);
         printf("ti = %d\n", ti);
         thrd_sleep(&delay, NULL);
@@ -109,6 +139,7 @@ int main(int argc, char **argv) {
     World *world = createWorld();
     addFruit(world, createFruit(1., 1.2, 0.4));
     addFruit(world, createFruit(0.2, 2.2, 0.2));
+    printf("%p\n", world->f);
     run(world);
     destroyWorld(world);
     return 0;
