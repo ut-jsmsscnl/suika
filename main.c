@@ -7,8 +7,8 @@ typedef struct _Vector {
 } Vector;
 
 typedef struct _Fruit {
-    Vector x, v;
-    double r;
+    Vector x, v, j;
+    double r, density, m;
     struct _Fruit *prev, *next;
 } Fruit;
 
@@ -16,8 +16,9 @@ typedef struct _World {
     double xran, yran;
     int width, height;
     Fruit *f;
-    double dt, e;
+    double dt;
     Vector gravity;
+    double e;
 } World;
 
 void vecMultAdd(Vector *a, Vector b, double k) {
@@ -38,6 +39,8 @@ Fruit *createFruit(double x, double y, double r) {
     f->v.x = 0.5;
     f->v.y = 0.;
     f->r = r;
+    f->density = 1.;
+    f->m = r * r * f->density;
     f->prev = NULL;
     f->next = NULL;
     return f;
@@ -75,31 +78,26 @@ void addFruit(World *world, Fruit *newf) {
     world->f = newf;
 }
 
-void applyGravity(World *world) {
+void calcImpulse(World *world) {
     Fruit *f = world->f;
     while(f != NULL) {
-        vecMultAdd(&(f->v), world->gravity, world->dt);
-        f = f->prev;
-    }
-}
-
-void applyCollision(World *world) {
-    Fruit *f = world->f;
-    while(f != NULL) {
+        f->j.x = f->m * world->gravity.x * world->dt;
+        f->j.y = f->m * world->gravity.y * world->dt;
         if(f->x.y + f->r > world->yran && f->v.y > 0) {
-            f->v.y *= -world->e;
+            f->j.y = f->m * -(1 + world->e) * f->v.y;
         }
         if(f->x.x - f->r < 0 && f->v.x < 0 ||
            f->x.x + f->r > world->xran && f->v.x > 0) {
-            f->v.x *= -world->e;
+            f->j.x = f->m * -(1 + world->e) * f->v.x;
         }
         f = f->prev;
     }
 }
 
-void move(World *world) {
+void applyImpulse(World *world) {
     Fruit *f = world->f;
     while(f != NULL) {
+        vecMultAdd(&(f->v), f->j, 1 / f->m);
         vecMultAdd(&(f->x), f->v, world->dt);
         f = f->prev;
     }
@@ -143,12 +141,14 @@ void display(World *world) {
 void run(World *world) {
     struct timespec delay = {.tv_nsec = world->dt * 1E9};
     Fruit *f;
-    for(int ti = 0; ti < 50; ti++) {
-        applyGravity(world);
-        applyCollision(world);
-        move(world);
+    for(int ti = 0; ti < 100; ti++) {
+        calcImpulse(world);
+        applyImpulse(world);
         display(world);
         printf("ti = %d\n", ti);
+        printf("y  %lf\n", world->f->prev->x.y);
+        printf("vy %lf\n", world->f->prev->v.y);
+        printf("jy %lf\n", world->f->prev->j.y);
         thrd_sleep(&delay, NULL);
     }
 }
