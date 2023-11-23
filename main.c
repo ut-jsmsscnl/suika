@@ -1,30 +1,38 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct _Fruit {
+typedef struct _Vector {
     double x, y;
+} Vector;
+
+typedef struct _Fruit {
+    Vector x;
     double r;
 } Fruit;
 
 typedef struct _World {
-    double x, y;
+    double xran, yran;
     int width, height;
     Fruit **f;
 } World;
 
+double dist2(Vector a, Vector b) {
+    return (a.x-b.x) * (a.x-b.x) + (a.y-b.y) * (a.y-b.y);
+}
+
 Fruit *createFruit(double x, double y, double r) {
     Fruit *f = (Fruit*)malloc(sizeof(Fruit));
-    f->x = x;
-    f->y = y;
+    f->x.x = x;
+    f->x.y = y;
     f->r = r;
     return f;
 }
 
-World *createWorld(double x, double y) {
+World *createWorld(double xran, double yran) {
     World *world = (World*)malloc(sizeof(World));
-    world->x = x;
-    world->y = y;
-    world->width = (int)(20 * 2.5333 * x / y);
+    world->xran = xran;
+    world->yran = yran;
+    world->width = (int)(20 * 2.5333 * xran / yran);
     world->height = 20;
     world->f = (Fruit**)malloc(100 * sizeof(Fruit*));
     for(int i = 0; i < 100; i++) world->f[i] = NULL;
@@ -42,7 +50,23 @@ void addFruit(World *world, Fruit *newf) {
     }
 }
 
+Vector getWorldCoord(World *world, int i, int j) {
+    Vector x;
+    x.x = (j + .5) * world->xran / world->width;
+    x.y = (i + .5) * world->yran / world->height;
+    return x;
+}
+
 char getpixel(World *world, int i, int j) {
+    Vector x = getWorldCoord(world, i, j);
+    for(int i = 0; i < 100; i++) {
+        if(world->f[i] != NULL) {
+            Fruit *f = world->f[i];
+            if(dist2(x, f->x) < f->r * f->r) {
+                return '*';
+            }
+        }
+    }
     return ' ';
 }
 
@@ -63,7 +87,7 @@ void display(World *world) {
 
 int main(int argc, char **argv) {
     World *world = createWorld(2., 3.);
-    addFruit(world, createFruit(1., 1.2, 0.7));
+    addFruit(world, createFruit(1., 1.2, 0.4));
     display(world);
     destroyWorld(world);
     return 0;
