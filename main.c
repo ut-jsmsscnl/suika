@@ -37,7 +37,7 @@ Fruit *createFruit(double x, double y, double r) {
     f->x.x = x;
     f->x.y = y;
     f->v.x = 0.5;
-    f->v.y = 0.;
+    f->v.y = 0.5;
     f->r = r;
     f->density = 1.;
     f->m = r * r * f->density;
@@ -83,11 +83,10 @@ void calcImpulse(World *world) {
     while(f != NULL) {
         f->j.x = f->m * world->gravity.x * world->dt;
         f->j.y = f->m * world->gravity.y * world->dt;
-        if(f->x.y + f->r > world->yran && f->v.y > 0) {
+        if(f->x.y + f->r > world->yran) {
             f->j.y = f->m * -(1 + world->e) * f->v.y;
         }
-        if(f->x.x - f->r < 0 && f->v.x < 0 ||
-           f->x.x + f->r > world->xran && f->v.x > 0) {
+        if(f->x.x - f->r < 0 || f->x.x + f->r > world->xran) {
             f->j.x = f->m * -(1 + world->e) * f->v.x;
         }
         f = f->prev;
@@ -146,17 +145,17 @@ void run(World *world) {
         applyImpulse(world);
         display(world);
         printf("ti = %d\n", ti);
-        printf("y  %lf\n", world->f->prev->x.y);
-        printf("vy %lf\n", world->f->prev->v.y);
-        printf("jy %lf\n", world->f->prev->j.y);
+        printf("y  %lf\n", world->f->x.y);
+        printf("vy %lf\n", world->f->v.y);
+        printf("jy %lf\n", world->f->j.y);
         thrd_sleep(&delay, NULL);
     }
 }
 
 int main(int argc, char **argv) {
     World *world = createWorld();
-    addFruit(world, createFruit(1., 1.2, 0.4));
-    addFruit(world, createFruit(0.2, 2.2, 0.2));
+    addFruit(world, createFruit(1., 1.6, 0.4));
+    //addFruit(world, createFruit(0.2, 2.2, 0.2));
     run(world);
     destroyWorld(world);
     return 0;
