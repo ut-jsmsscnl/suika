@@ -1,55 +1,70 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct _Screen {
-    int width, height;
-    char **c;
-} Screen;
+typedef struct _Fruit {
+    double x, y;
+    double r;
+} Fruit;
 
 typedef struct _World {
     double x, y;
-    Screen *s;
+    int width, height;
+    Fruit **f;
 } World;
 
-Screen* createScreen(int width, int height) {
-    Screen *s = (Screen*)malloc(sizeof(Screen));
-    s->width = width;
-    s->height = height;
-    s->c = (char**)malloc(height * sizeof(char*));
-    for(int i = 0; i < height; i++) {
-        s->c[i] = (char*)malloc(width * sizeof(char));
-        for(int j = 0; j < width; j++) {
-            s->c[i][j] = ' ';
-        }
-    }
-    return s;
+Fruit *createFruit(double x, double y, double r) {
+    Fruit *f = (Fruit*)malloc(sizeof(Fruit));
+    f->x = x;
+    f->y = y;
+    f->r = r;
+    return f;
 }
 
 World *createWorld(double x, double y) {
     World *world = (World*)malloc(sizeof(World));
     world->x = x;
     world->y = y;
-    world->s = createScreen(20*2.5333*x/y, 20);
+    world->width = (int)(20 * 2.5333 * x / y);
+    world->height = 20;
+    world->f = (Fruit**)malloc(100 * sizeof(Fruit*));
+    for(int i = 0; i < 100; i++) world->f[i] = NULL;
     return world;
 }
 
-void display(Screen *s) {
-    for(int i = 0; i < s->height; i++) {
-        putchar('|');
-        for(int j = 0; j < s->width; j++) {
-            putchar(s->c[i][j]);
-        }
-        putchar('|');
-        puts("");
+void destroyWorld(World *world) {
+    free(world->f);
+    free(world);
+}
+
+void addFruit(World *world, Fruit *newf) {
+    for(int i = 0; i < 100; i++) {
+        if(world->f[i] == NULL) world->f[i] = newf;
     }
-    for(int j = 0; j < s->width + 2; j++) {
+}
+
+char getpixel(World *world, int i, int j) {
+    return ' ';
+}
+
+void display(World *world) {
+    for(int i = 0; i < world->height; i++) {
+        putchar('|');
+        for(int j = 0; j < world->width; j++) {
+            putchar(getpixel(world, i, j));
+        }
+        puts("|");
+    }
+    putchar('|');
+    for(int j = 0; j < world->width; j++) {
         putchar('-');
     }
-    puts("");
+    puts("|");
 }
 
 int main(int argc, char **argv) {
     World *world = createWorld(2., 3.);
-    display(world->s);
+    addFruit(world, createFruit(1., 1.2, 0.7));
+    display(world);
+    destroyWorld(world);
     return 0;
 }
