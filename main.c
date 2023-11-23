@@ -8,12 +8,13 @@ typedef struct _Vector {
 typedef struct _Fruit {
     Vector x;
     double r;
+    struct _Fruit *prev, *next;
 } Fruit;
 
 typedef struct _World {
     double xran, yran;
     int width, height;
-    Fruit **f;
+    Fruit *f;
 } World;
 
 double dist2(Vector a, Vector b) {
@@ -25,6 +26,7 @@ Fruit *createFruit(double x, double y, double r) {
     f->x.x = x;
     f->x.y = y;
     f->r = r;
+    f->prev = f->next = NULL;
     return f;
 }
 
@@ -34,20 +36,26 @@ World *createWorld(double xran, double yran) {
     world->yran = yran;
     world->width = (int)(20 * 2.5333 * xran / yran);
     world->height = 20;
-    world->f = (Fruit**)malloc(100 * sizeof(Fruit*));
-    for(int i = 0; i < 100; i++) world->f[i] = NULL;
+    world->f = NULL;
     return world;
 }
 
 void destroyWorld(World *world) {
-    free(world->f);
+    Fruit *f1 = world->f, *f2 = NULL;
+    while(f1 != NULL) {
+        f2 = f1;
+        f1 = f1->prev;
+        free(f2);
+    }
     free(world);
 }
 
 void addFruit(World *world, Fruit *newf) {
-    for(int i = 0; i < 100; i++) {
-        if(world->f[i] == NULL) world->f[i] = newf;
+    if(world->f != NULL) {
+        world->f->next = newf;
+        newf->prev = world->f;
     }
+    world->f = newf;
 }
 
 Vector getWorldCoord(World *world, int i, int j) {
@@ -59,13 +67,12 @@ Vector getWorldCoord(World *world, int i, int j) {
 
 char getpixel(World *world, int i, int j) {
     Vector x = getWorldCoord(world, i, j);
-    for(int i = 0; i < 100; i++) {
-        if(world->f[i] != NULL) {
-            Fruit *f = world->f[i];
-            if(dist2(x, f->x) < f->r * f->r) {
-                return '*';
-            }
+    Fruit *f = world->f;
+    while(f != NULL) {
+        if(dist2(x, f->x) < f->r * f->r) {
+            return '*';
         }
+        f = f->prev;
     }
     return ' ';
 }
@@ -88,6 +95,7 @@ void display(World *world) {
 int main(int argc, char **argv) {
     World *world = createWorld(2., 3.);
     addFruit(world, createFruit(1., 1.2, 0.4));
+    addFruit(world, createFruit(0.2, 2.2, 0.2));
     display(world);
     destroyWorld(world);
     return 0;
