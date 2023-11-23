@@ -1,42 +1,55 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct _Window {
+typedef struct _Screen {
     int width, height;
     char **c;
-} Window;
+} Screen;
 
-Window* createWindow(int width, int height) {
-    Window *w = (Window*)malloc(sizeof(Window));
-    w->width = width;
-    w->height = height;
-    w->c = (char**)malloc(height * sizeof(char*));
+typedef struct _World {
+    double x, y;
+    Screen *s;
+} World;
+
+Screen* createScreen(int width, int height) {
+    Screen *s = (Screen*)malloc(sizeof(Screen));
+    s->width = width;
+    s->height = height;
+    s->c = (char**)malloc(height * sizeof(char*));
     for(int i = 0; i < height; i++) {
-        w->c[i] = (char*)malloc(width * sizeof(char));
+        s->c[i] = (char*)malloc(width * sizeof(char));
         for(int j = 0; j < width; j++) {
-            w->c[i][j] = ' ';
+            s->c[i][j] = ' ';
         }
     }
-    return w;
+    return s;
 }
 
-void display(Window *w) {
-    for(int i = 0; i < w->height; i++) {
+World *createWorld(double x, double y) {
+    World *world = (World*)malloc(sizeof(World));
+    world->x = x;
+    world->y = y;
+    world->s = createScreen(20*2.5333*x/y, 20);
+    return world;
+}
+
+void display(Screen *s) {
+    for(int i = 0; i < s->height; i++) {
         putchar('|');
-        for(int j = 0; j < w->width; j++) {
-            putchar(w->c[i][j]);
+        for(int j = 0; j < s->width; j++) {
+            putchar(s->c[i][j]);
         }
         putchar('|');
         puts("");
     }
-    for(int j = 0; j < w->width + 2; j++) {
+    for(int j = 0; j < s->width + 2; j++) {
         putchar('-');
     }
     puts("");
 }
 
 int main(int argc, char **argv) {
-    Window *w = createWindow(30, 15);
-    display(w);
+    World *world = createWorld(2., 3.);
+    display(world->s);
     return 0;
 }
