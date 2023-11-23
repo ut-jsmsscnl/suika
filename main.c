@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <threads.h>
 
 typedef struct _Vector {
     double x, y;
@@ -15,6 +16,7 @@ typedef struct _World {
     double xran, yran;
     int width, height;
     Fruit *f;
+    double dt;
 } World;
 
 double dist2(Vector a, Vector b) {
@@ -30,13 +32,14 @@ Fruit *createFruit(double x, double y, double r) {
     return f;
 }
 
-World *createWorld(double xran, double yran) {
+World *createWorld() {
     World *world = (World*)malloc(sizeof(World));
-    world->xran = xran;
-    world->yran = yran;
-    world->width = (int)(20 * 2.5333 * xran / yran);
+    world->xran = 2.;
+    world->yran = 3.;
+    world->width = (int)(20 * 2.5333 * 2. / 3.);
     world->height = 20;
     world->f = NULL;
+    world->dt = .2;
     return world;
 }
 
@@ -78,6 +81,7 @@ char getpixel(World *world, int i, int j) {
 }
 
 void display(World *world) {
+    system("clear");
     for(int i = 0; i < world->height; i++) {
         putchar('|');
         for(int j = 0; j < world->width; j++) {
@@ -92,11 +96,20 @@ void display(World *world) {
     puts("|");
 }
 
+void run(World *world) {
+    struct timespec delay = {.tv_nsec = world->dt * 1E9};
+    for(int ti = 0; ti < 20; ti++) {
+        display(world);
+        printf("ti = %d\n", ti);
+        thrd_sleep(&delay, NULL);
+    }
+}
+
 int main(int argc, char **argv) {
-    World *world = createWorld(2., 3.);
+    World *world = createWorld();
     addFruit(world, createFruit(1., 1.2, 0.4));
     addFruit(world, createFruit(0.2, 2.2, 0.2));
-    display(world);
+    run(world);
     destroyWorld(world);
     return 0;
 }
