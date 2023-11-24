@@ -6,20 +6,20 @@
 
 typedef struct _World {
     Fruit *f;
-    double x, y;
+    double xmax, ymax;
     int width, height;
     int fps, subframe;
     double dt;
     struct timespec delay;
-    double e;
+    double e, mu;
     Vector gravity;
 } World;
 
 World *createWorld() {
     World *world = (World*)malloc(sizeof(World));
-    world->x = 2.;
-    world->y = 3.;
-    world->width = (int)(20 * 2.5333 * world->x / world->y);
+    world->xmax = 2.;
+    world->ymax = 3.;
+    world->width = (int)(20 * 2.5333 * world->xmax / world->ymax);
     world->height = 20;
     world->f = NULL;
     world->fps = 10;
@@ -27,6 +27,7 @@ World *createWorld() {
     world->dt = 1. / world->fps / world->subframe;
     world->delay = (struct timespec){.tv_nsec = 1E9 / world->fps};
     world->e = .2;
+    world->mu = .1;
     world->gravity = (Vector){0., 1.};
     return world;
 }
@@ -49,29 +50,38 @@ void addFruit(World *world, Fruit *newf) {
     world->f = newf;
 }
 
-void calcImpulse(World *world) {
+void simulate(World *world) {
     Fruit *f = world->f;
     while(f != NULL) {
-        f->j = (Vector){0., 0.};
-        applyGravity(f, world->gravity, world->dt);
-        checkBoundaryCol(f, world->x, world->y, world->e);
+        vecMultAddA(&(f->v), world->gravity, world->dt);
         f = f->prev;
     }
-}
-
-void applyImpulse(World *world) {
-    Fruit *f = world->f;
+    f = world->f;
     while(f != NULL) {
-        vecMultAdd(&(f->v), f->j, 1 / f->m);
-        vecMultAdd(&(f->x), f->v, world->dt);
+        f->j = (Vector){0., 0.};
+        if(f->x.y + f->r > world->ymax) {
+            boundColision(f, (Vector){0., -1.}, world->e, world->mu);
+        }
+        if(f->x.x - f->r < 0.) {
+            boundColision(f, (Vector){1., 0.}, world->e, world->mu);
+        }
+        if(f->x.x + f->r > world->xmax) {
+            boundColision(f, (Vector){-1., 0.}, world->e, world->mu);
+        }
+        f = f->prev;
+    }
+    f = world->f;
+    while(f != NULL) {
+        vecMultAddA(&(f->v), f->j, 1 / f->m);
+        vecMultAddA(&(f->x), f->v, world->dt);
         f = f->prev;
     }
 }
 
 Vector getWorldCoord(World *world, int i, int j) {
     Vector x;
-    x.x = (j + .5) * world->x / world->width;
-    x.y = (i + .5) * world->y / world->height;
+    x.x = (j + .5) * world->xmax / world->width;
+    x.y = (i + .5) * world->ymax / world->height;
     return x;
 }
 
@@ -106,8 +116,7 @@ void display(World *world) {
 void run(World *world) {
     Fruit *f;
     for(int ti = 0; ti < 100 * world->subframe; ti++) {
-        calcImpulse(world);
-        applyImpulse(world);
+        simulate(world);
         if(ti % world->subframe == 0) {
             display(world);
             printf("frame = %d\n", ti / world->subframe);

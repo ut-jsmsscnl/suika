@@ -20,18 +20,15 @@ Fruit *createFruit(double x, double y, double r) {
     return f;
 }
 
-void applyGravity(Fruit *f, Vector gravity, double dt) {
-    vecMultAdd(&(f->j), gravity, f->m * dt);
-}
-
-void checkBoundaryCol(Fruit *f, double x, double y, double e) {
-    if(f->x.y + f->r > y && f->v.y > 0) {
-        f->j.y = f->m * -(1 + e) * f->v.y;
-    }
-    if(f->x.x - f->r < 0 && f->v.x < 0 ||
-       f->x.x + f->r > x && f->v.x > 0) {
-        f->j.x = f->m * -(1 + e) * f->v.x;
-    }
+void boundColision(Fruit *f, Vector n, double e, double mu) {
+    if(vecDot(n, f->v) > 0.) return;
+    Vector vn = vecMult(n, vecDot(n, f->v));
+    Vector t = vecNormalize(vecSub(f->v, vn));
+    double j = f->m * (1 + e) * vecNorm(vn);
+    Vector jn = vecMult(n, j);
+    Vector jt = vecMult(t, -j * mu);
+    vecAddA(&(f->j), jn);
+    vecAddA(&(f->j), jt);
 }
 
 #endif
