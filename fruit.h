@@ -1,5 +1,6 @@
 #ifndef FRUIT_H_INCLUDED
 #define FRUIT_H_INCLUDED
+#include <stdlib.h>
 #include "vector.h"
 
 typedef struct _Fruit {
