@@ -25,10 +25,11 @@ void applyGravity(Fruit *f, Vector gravity, double dt) {
 }
 
 void checkBoundaryCol(Fruit *f, double x, double y, double e) {
-    if(f->x.y + f->r > y) {
+    if(f->x.y + f->r > y && f->v.y > 0) {
         f->j.y = f->m * -(1 + e) * f->v.y;
     }
-    if(f->x.x - f->r < 0 || f->x.x + f->r > x) {
+    if(f->x.x - f->r < 0 && f->v.x < 0 ||
+       f->x.x + f->r > x && f->v.x > 0) {
         f->j.x = f->m * -(1 + e) * f->v.x;
     }
 }

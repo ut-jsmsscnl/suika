@@ -5,13 +5,14 @@
 #include "fruit.h"
 
 typedef struct _World {
+    Fruit *f;
     double x, y;
     int width, height;
-    Fruit *f;
+    int fps, subframe;
     double dt;
     struct timespec delay;
-    Vector gravity;
     double e;
+    Vector gravity;
 } World;
 
 World *createWorld() {
@@ -21,8 +22,10 @@ World *createWorld() {
     world->width = (int)(20 * 2.5333 * world->x / world->y);
     world->height = 20;
     world->f = NULL;
-    world->dt = .1;
-    world->delay = (struct timespec){.tv_nsec = world->dt * 1E9};
+    world->fps = 10;
+    world->subframe = 5;
+    world->dt = 1. / world->fps / world->subframe;
+    world->delay = (struct timespec){.tv_nsec = 1E9 / world->fps};
     world->e = .2;
     world->gravity = (Vector){0., 1.};
     return world;
@@ -72,7 +75,7 @@ Vector getWorldCoord(World *world, int i, int j) {
     return x;
 }
 
-char render(World *world, int i, int j) {
+char getPixel(World *world, int i, int j) {
     Vector x = getWorldCoord(world, i, j);
     Fruit *f = world->f;
     while(f != NULL) {
@@ -89,7 +92,7 @@ void display(World *world) {
     for(int i = 0; i < world->height; i++) {
         putchar('|');
         for(int j = 0; j < world->width; j++) {
-            putchar(render(world, i, j));
+            putchar(getPixel(world, i, j));
         }
         puts("|");
     }
@@ -102,15 +105,17 @@ void display(World *world) {
 
 void run(World *world) {
     Fruit *f;
-    for(int ti = 0; ti < 100; ti++) {
+    for(int ti = 0; ti < 100 * world->subframe; ti++) {
         calcImpulse(world);
         applyImpulse(world);
-        display(world);
-        printf("ti = %d\n", ti);
-        printf("y  %lf\n", world->f->x.y);
-        printf("vy %lf\n", world->f->v.y);
-        printf("jy %lf\n", world->f->j.y);
-        thrd_sleep(&(world->delay), NULL);
+        if(ti % world->subframe == 0) {
+            display(world);
+            printf("frame = %d\n", ti / world->subframe);
+            printf("x %lf\t%lf\n", world->f->x.x, world->f->x.y);
+            printf("v %lf\t%lf\n", world->f->v.x, world->f->v.y);
+            printf("j %lf\t%lf\n", world->f->j.x, world->f->j.y);
+            thrd_sleep(&(world->delay), NULL);
+        }
     }
 }
 
