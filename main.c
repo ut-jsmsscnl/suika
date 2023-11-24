@@ -1,16 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <threads.h>
-
-typedef struct _Vector {
-    double x, y;
-} Vector;
-
-typedef struct _Fruit {
-    Vector x, v, j;
-    double r, density, m;
-    struct _Fruit *prev, *next;
-} Fruit;
+#include "vector.h"
+#include "fruit.h"
 
 typedef struct _World {
     double xran, yran;
@@ -20,31 +12,6 @@ typedef struct _World {
     Vector gravity;
     double e;
 } World;
-
-void vecMultAdd(Vector *a, Vector b, double k) {
-    a->x += b.x * k;
-    a->y += b.y * k;
-}
-
-double vecDist2(Vector a, Vector b) {
-    double dx = a.x - b.x;
-    double dy = a.y - b.y;
-    return dx * dx + dy * dy;
-}
-
-Fruit *createFruit(double x, double y, double r) {
-    Fruit *f = (Fruit*)malloc(sizeof(Fruit));
-    f->x.x = x;
-    f->x.y = y;
-    f->v.x = 0.5;
-    f->v.y = 0.5;
-    f->r = r;
-    f->density = 1.;
-    f->m = r * r * f->density;
-    f->prev = NULL;
-    f->next = NULL;
-    return f;
-}
 
 World *createWorld() {
     World *world = (World*)malloc(sizeof(World));
