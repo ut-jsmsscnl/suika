@@ -5,25 +5,26 @@
 #include "fruit.h"
 
 typedef struct _World {
-    double xran, yran;
+    double x, y;
     int width, height;
     Fruit *f;
     double dt;
+    struct timespec delay;
     Vector gravity;
     double e;
 } World;
 
 World *createWorld() {
     World *world = (World*)malloc(sizeof(World));
-    world->xran = 2.;
-    world->yran = 3.;
-    world->width = (int)(20 * 2.5333 * 2. / 3.);
+    world->x = 2.;
+    world->y = 3.;
+    world->width = (int)(20 * 2.5333 * world->x / world->y);
     world->height = 20;
     world->f = NULL;
-    world->dt = 0.1;
-    world->e = 0.3;
-    world->gravity.x = 0.;
-    world->gravity.y = 0.8;
+    world->dt = .1;
+    world->delay = (struct timespec){.tv_nsec = world->dt * 1E9};
+    world->e = .2;
+    world->gravity = (Vector){0., 1.};
     return world;
 }
 
@@ -48,14 +49,9 @@ void addFruit(World *world, Fruit *newf) {
 void calcImpulse(World *world) {
     Fruit *f = world->f;
     while(f != NULL) {
-        f->j.x = f->m * world->gravity.x * world->dt;
-        f->j.y = f->m * world->gravity.y * world->dt;
-        if(f->x.y + f->r > world->yran) {
-            f->j.y = f->m * -(1 + world->e) * f->v.y;
-        }
-        if(f->x.x - f->r < 0 || f->x.x + f->r > world->xran) {
-            f->j.x = f->m * -(1 + world->e) * f->v.x;
-        }
+        f->j = (Vector){0., 0.};
+        applyGravity(f, world->gravity, world->dt);
+        checkBoundaryCol(f, world->x, world->y, world->e);
         f = f->prev;
     }
 }
@@ -71,8 +67,8 @@ void applyImpulse(World *world) {
 
 Vector getWorldCoord(World *world, int i, int j) {
     Vector x;
-    x.x = (j + .5) * world->xran / world->width;
-    x.y = (i + .5) * world->yran / world->height;
+    x.x = (j + .5) * world->x / world->width;
+    x.y = (i + .5) * world->y / world->height;
     return x;
 }
 
@@ -105,7 +101,6 @@ void display(World *world) {
 }
 
 void run(World *world) {
-    struct timespec delay = {.tv_nsec = world->dt * 1E9};
     Fruit *f;
     for(int ti = 0; ti < 100; ti++) {
         calcImpulse(world);
@@ -115,7 +110,7 @@ void run(World *world) {
         printf("y  %lf\n", world->f->x.y);
         printf("vy %lf\n", world->f->v.y);
         printf("jy %lf\n", world->f->j.y);
-        thrd_sleep(&delay, NULL);
+        thrd_sleep(&(world->delay), NULL);
     }
 }
 

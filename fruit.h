@@ -11,13 +11,26 @@ typedef struct _Fruit {
 
 Fruit *createFruit(double x, double y, double r) {
     Fruit *f = (Fruit*)malloc(sizeof(Fruit));
-    vecSet(&(f->x), x, y);
-    vecSet(&(f->v), 0.5, 0.5);
+    f->x = (Vector){x, y};
+    f->v = (Vector){0.5, 0.5};
     f->r = r;
     f->density = 1.;
     f->m = r * r * f->density;
     f->prev = f->next = NULL;
     return f;
+}
+
+void applyGravity(Fruit *f, Vector gravity, double dt) {
+    vecMultAdd(&(f->j), gravity, f->m * dt);
+}
+
+void checkBoundaryCol(Fruit *f, double x, double y, double e) {
+    if(f->x.y + f->r > y) {
+        f->j.y = f->m * -(1 + e) * f->v.y;
+    }
+    if(f->x.x - f->r < 0 || f->x.x + f->r > x) {
+        f->j.x = f->m * -(1 + e) * f->v.x;
+    }
 }
 
 #endif
