@@ -10,15 +10,12 @@ typedef struct _Fruit {
 
 Fruit *createFruit(double x, double y, double r) {
     Fruit *f = (Fruit*)malloc(sizeof(Fruit));
-    f->x.x = x;
-    f->x.y = y;
-    f->v.x = 0.5;
-    f->v.y = 0.5;
+    vecSet(&(f->x), x, y);
+    vecSet(&(f->v), 0.5, 0.5);
     f->r = r;
     f->density = 1.;
     f->m = r * r * f->density;
-    f->prev = NULL;
-    f->next = NULL;
+    f->prev = f->next = NULL;
     return f;
 }
 
