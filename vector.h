@@ -24,6 +24,10 @@ void vecSubA(Vector *a, Vector b) {
     a->y -= b.y;
 }
 
+Vector vecMinus(Vector a) {
+    return (Vector){-a.x, -a.y};
+}
+
 Vector vecMult(Vector a, double k) {
     return (Vector){a.x * k, a.y * k};
 }
