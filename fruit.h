@@ -6,16 +6,19 @@
 typedef struct _Fruit {
     Vector x, v, j;
     double r, density, m;
+    char c;
     struct _Fruit *prev, *next;
 } Fruit;
 
-Fruit *createFruit(double x, double y, double r) {
+Fruit *createFruit(double x, double y, double r, char c) {
     Fruit *f = (Fruit*)malloc(sizeof(Fruit));
     f->x = (Vector){x, y};
-    f->v = (Vector){0.5, 0.5};
+    f->v = (Vector){0., 0.};
+    f->j = (Vector){0., 0.};
     f->r = r;
     f->density = 1.;
     f->m = r * r * f->density;
+    f->c = c;
     f->prev = f->next = NULL;
     return f;
 }

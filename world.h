@@ -90,7 +90,7 @@ char getPixel(World *world, int i, int j) {
     Fruit *f = world->f;
     while(f != NULL) {
         if(vecDist2(x, f->x) < f->r * f->r) {
-            return '*';
+            return f->c;
         }
         f = f->prev;
     }
