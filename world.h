@@ -63,20 +63,30 @@ void checkBoundCol(World *world) {
     while(f != NULL) {
         f->j = (Vector){0., 0.};
         if(f->x.y + f->r > world->ymax) {
-            boundColision(f, (Vector){0., -1.}, world->e, world->mu);
+            boundCollision(f, (Vector){0., -1.}, world->e, world->mu);
         }
         if(f->x.x - f->r < 0.) {
-            boundColision(f, (Vector){1., 0.}, world->e, world->mu);
+            boundCollision(f, (Vector){1., 0.}, world->e, world->mu);
         }
         if(f->x.x + f->r > world->xmax) {
-            boundColision(f, (Vector){-1., 0.}, world->e, world->mu);
+            boundCollision(f, (Vector){-1., 0.}, world->e, world->mu);
         }
         f = f->prev;
     }
 }
 
 void checkFruitCol(World *world) {
-    return;
+    Fruit *f1 = world->f, *f2;
+    while(f1 != NULL) {
+        f2 = f1->prev;
+        while(f2 != NULL) {
+            if(vecDistCloserThan(f1->x, f2->x, f1->r + f2->r)) {
+                fruitCollision(f1, f2, world->e, world->mu);
+            }
+            f2 = f2->prev;
+        }
+        f1 = f1->prev;
+    }
 }
 
 void applyImpulse(World *world) {
@@ -93,7 +103,7 @@ char getPixel(World *world, int i, int j) {
                 (i + .5) * world->ymax / world->height};
     Fruit *f = world->f;
     while(f != NULL) {
-        if(vecDist2(x, f->x) < f->r * f->r) {
+        if(vecDistCloserThan(x, f->x, f->r)) {
             return f->c;
         }
         f = f->prev;

@@ -23,7 +23,7 @@ Fruit *createFruit(double x, double y, double r, char c) {
     return f;
 }
 
-void boundColision(Fruit *f, Vector n, double e, double mu) {
+void boundCollision(Fruit *f, Vector n, double e, double mu) {
     if(vecDot(n, f->v) > 0.) return;
     Vector vn = vecMult(n, vecDot(n, f->v));
     Vector t = vecNormalize(vecSub(f->v, vn));
@@ -32,6 +32,10 @@ void boundColision(Fruit *f, Vector n, double e, double mu) {
     Vector jt = vecMult(t, -j * mu);
     vecAddA(&(f->j), jn);
     vecAddA(&(f->j), jt);
+}
+
+void fruitCollision(Fruit *f1, Fruit *f2, double e, double mu) {
+    return;
 }
 
 #endif
