@@ -67,8 +67,4 @@ Vector vecNormalize(Vector a) {
     return (Vector){0., 0.};
 }
 
-int vecClose(Vector a, Vector b, double r) {
-    return vecDist2(a, b) < r * r;
-}
-
 #endif
