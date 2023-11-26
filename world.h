@@ -50,13 +50,16 @@ void addFruit(World *world, Fruit *newf) {
     world->f = newf;
 }
 
-void simulate(World *world) {
+void applyGravity(World *world) {
     Fruit *f = world->f;
     while(f != NULL) {
         vecMultAddA(&(f->v), world->gravity, world->dt);
         f = f->prev;
     }
-    f = world->f;
+}
+
+void checkBoundCol(World *world) {
+    Fruit *f = world->f;
     while(f != NULL) {
         f->j = (Vector){0., 0.};
         if(f->x.y + f->r > world->ymax) {
@@ -70,7 +73,14 @@ void simulate(World *world) {
         }
         f = f->prev;
     }
-    f = world->f;
+}
+
+void checkFruitCol(World *world) {
+    return;
+}
+
+void applyImpulse(World *world) {
+    Fruit *f = world->f;
     while(f != NULL) {
         vecMultAddA(&(f->v), f->j, 1 / f->m);
         vecMultAddA(&(f->x), f->v, world->dt);
@@ -78,15 +88,9 @@ void simulate(World *world) {
     }
 }
 
-Vector getWorldCoord(World *world, int i, int j) {
-    Vector x;
-    x.x = (j + .5) * world->xmax / world->width;
-    x.y = (i + .5) * world->ymax / world->height;
-    return x;
-}
-
 char getPixel(World *world, int i, int j) {
-    Vector x = getWorldCoord(world, i, j);
+    Vector x = {(j + .5) * world->xmax / world->width,
+                (i + .5) * world->ymax / world->height};
     Fruit *f = world->f;
     while(f != NULL) {
         if(vecDist2(x, f->x) < f->r * f->r) {
@@ -116,13 +120,13 @@ void display(World *world) {
 void run(World *world) {
     Fruit *f;
     for(int ti = 0; ti < 100 * world->subframe; ti++) {
-        simulate(world);
+        applyGravity(world);
+        checkBoundCol(world);
+        checkFruitCol(world);
+        applyImpulse(world);
         if(ti % world->subframe == 0) {
             display(world);
             printf("frame = %d\n", ti / world->subframe);
-            printf("x %lf\t%lf\n", world->f->x.x, world->f->x.y);
-            printf("v %lf\t%lf\n", world->f->v.x, world->f->v.y);
-            printf("j %lf\t%lf\n", world->f->j.x, world->f->j.y);
             thrd_sleep(&(world->delay), NULL);
         }
     }
