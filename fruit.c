@@ -2,10 +2,8 @@
 
 Fruit *createFruit(double x, double y, double r, char c) {
     Fruit *f = (Fruit*)malloc(sizeof(Fruit));
-    f->x = (Vector){x, y};
-    f->xp = (Vector){x, y};
-    f->v = (Vector){0., 0.};
-    f->j = (Vector){0., 0.};
+    f->x = f->xp = (Vector){x, y};
+    f->v = f->j = (Vector){0., 0.};
     f->r = r;
     f->m = r * r;
     f->c = c;

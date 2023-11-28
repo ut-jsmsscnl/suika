@@ -5,7 +5,7 @@
 #include "fruit.h"
 
 typedef struct _World {
-    Fruit *f;
+    Fruit *f, *fd;
     int width, height;
     struct timespec delay;
 } World;
@@ -22,5 +22,7 @@ char getPixel(World *world, int i, int j);
 void display(World *world);
 int checkStopped(World *world);
 void run(World *world);
+void moveLeft(World *world);
+void moveRight(World *world);
 
 #endif
