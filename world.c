@@ -68,12 +68,20 @@ int checkStopped(Fruit *f) {
 }
 
 int checkMerge(World *world) {
-    ColPair *colp;
     int merged = 0;
+    ColPair *colp;
     while(world->col != NULL) {
-        if(world->col->f1->type == world->col->f2->type) {
+        if(world->col->active) {
             Fruit *f1 = world->col->f1;
             Fruit *f2 = world->col->f2;
+            ColPair *colp = world->col->prev;
+            while(colp != NULL) {
+                if(colp->f1 == f1 || colp->f2 == f1 ||
+                   colp->f1 == f2 || colp->f2 == f2) {
+                    colp->active = 0;
+                }
+                colp = colp->prev;
+            }
             if(f1->type < _ftn - 1) {
                 Vector x = vecMult(vecAdd(f1->x, f2->x), .5);
                 Fruit *newf = createFruit(x.x, x.y, f1->type + 1);

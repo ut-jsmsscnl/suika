@@ -45,7 +45,7 @@ void checkFruitCol(Fruit *f, ColPair **col) {
                 Vector j = getImpulse(n, v, rm, vb);
                 vecAddA(&(f1->j), j);
                 vecAddA(&(f2->j), vecMinus(j));
-                addColPair(col, f1, f2);
+                if(f1->type == f2->type) addColPair(col, f1, f2);
             }
             f2 = f2->prev;
         }
