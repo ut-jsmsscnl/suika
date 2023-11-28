@@ -24,10 +24,11 @@ const double _dt = 1. / _fps / _subframe;
 
 const double _maxt = 10.;
 const double _checkt = 1.;
-const double _xth = .1;
-const double _vth = .2;
 const int _maxf = (int)(_maxt * _fps);
 const int _checkf = (int)(_checkt * _fps);
+
+const double _xth = .1;
+const double _vth = .2;
 
 const int _ftn = 8;
 const int _dftn = 4;

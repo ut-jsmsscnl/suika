@@ -16,8 +16,10 @@ const double _e, _mu, _bias, _pdm;
 const int _fps, _subframe;
 const double _dt;
 
-const double _maxt, _checkt, _xth, _vth;
+const double _maxt, _checkt;
 const int _maxf, _checkf;
+
+const double _xth, _vth;
 
 const int _ftn, _dftn;
 extern const double _fr[];
