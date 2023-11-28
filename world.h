@@ -6,12 +6,7 @@
 
 typedef struct _World {
     Fruit *f;
-    double xmax, ymax;
     int width, height;
-    Vector gravity;
-    double e, mu, bias, pdm;
-    int fps, subframe;
-    double dt;
     struct timespec delay;
 } World;
 

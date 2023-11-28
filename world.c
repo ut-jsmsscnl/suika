@@ -3,19 +3,9 @@
 World *createWorld() {
     World *world = (World*)malloc(sizeof(World));
     world->f = NULL;
-    world->xmax = 2.;
-    world->ymax = 3.;
-    world->width = (int)(20 * 2.5333 * world->xmax / world->ymax);
+    world->width = (int)(20 * 2.5333 * _xmax / _ymax);
     world->height = 20;
-    world->gravity = (Vector){0., 1.};
-    world->e = .2;
-    world->mu = .1;
-    world->bias = 0.2;
-    world->pdm = 0.01;
-    world->fps = 10;
-    world->subframe = 5;
-    world->dt = 1. / world->fps / world->subframe;
-    world->delay = (struct timespec){.tv_nsec = 1E9 / world->fps};
+    world->delay = (struct timespec){.tv_nsec = 1E9 / _fps};
     return world;
 }
 
@@ -41,28 +31,27 @@ void applyGravity(World *world) {
     Fruit *f = world->f;
     while(f != NULL) {
         f->j = (Vector){0., 0.};
-        vecMultAddA(&(f->v), world->gravity, world->dt);
+        vecMultAddA(&(f->v), _gravity, _dt);
         f = f->prev;
     }
 }
 
 double getBiasVel(World *world, double pd) {
-    if(pd < world->pdm) return 0;
-    return world->bias / world->dt * (pd - world->pdm);
+    if(pd < _pdm) return 0;
+    return _bias / _dt * (pd - _pdm);
 }
 
 void checkBoundCol(World *world) {
     Fruit *f = world->f;
     double pd[3], vb;
-    Vector n[3] = {(Vector){0., -1.}, (Vector){1., 0.}, (Vector){-1., 0.}};
     while(f != NULL) {
-        pd[0] = f->x.y + f->r - world->ymax;
+        pd[0] = f->x.y + f->r - _ymax;
         pd[1] = f->r - f->x.x;
-        pd[2] = f->x.x + f->r - world->xmax;
+        pd[2] = f->x.x + f->r - _xmax;
         for(int i = 0; i < 3; i++) {
             if(pd[i] > 0.) {
                 vb = getBiasVel(world, pd[i]);
-                boundCollision(f, n[i], world->e, world->mu, vb);
+                boundCollision(f, _walln[i], vb);
             }
         }
         f = f->prev;
@@ -78,7 +67,7 @@ void checkFruitCol(World *world) {
             pd = f1->r + f2->r - vecDist(f1->x, f2->x);
             if(pd > 0.) {
                 vb = getBiasVel(world, pd);
-                fruitCollision(f1, f2, world->e, world->mu, vb);
+                fruitCollision(f1, f2, vb);
             }
             f2 = f2->prev;
         }
@@ -90,14 +79,14 @@ void applyImpulse(World *world) {
     Fruit *f = world->f;
     while(f != NULL) {
         vecMultAddA(&(f->v), f->j, 1 / f->m);
-        vecMultAddA(&(f->x), f->v, world->dt);
+        vecMultAddA(&(f->x), f->v, _dt);
         f = f->prev;
     }
 }
 
 char getPixel(World *world, int i, int j) {
-    Vector x = {(j + .5) * world->xmax / world->width,
-                (i + .5) * world->ymax / world->height};
+    Vector x = {(j + .5) * _xmax / world->width,
+                (i + .5) * _ymax / world->height};
     Fruit *f = world->f;
     while(f != NULL) {
         if(vecDist2(x, f->x) < f->r * f->r) {
@@ -126,14 +115,14 @@ void display(World *world) {
 
 void run(World *world) {
     Fruit *f;
-    for(int i = 0; i < 1000 * world->subframe; i++) {
+    for(int i = 0; i < 1000 * _subframe; i++) {
         applyGravity(world);
         checkBoundCol(world);
         checkFruitCol(world);
         applyImpulse(world);
-        if(i % world->subframe == 0) {
+        if(i % _subframe == 0) {
             display(world);
-            printf("frame = %d\n", i / world->subframe);
+            printf("frame = %d\n", i / _subframe);
             Fruit *f2 = world->f, *f1 = f2->prev;
             printf("x1 %lf %lf x2 %lf %lf\n", f1->x.x, f1->x.y, f2->x.x, f2->x.y);
             printf("v1 %lf %lf v2 %lf %lf\n", f1->v.x, f1->v.y, f2->v.x, f2->v.y);
