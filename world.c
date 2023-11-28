@@ -3,10 +3,10 @@
 World *createWorld() {
     World *world = (World*)malloc(sizeof(World));
     world->f = NULL;
-    world->fd = createFruit(_boundx / 2, 0., 0.2, 'x');
     world->width = (int)(20 * 2.5333 * _boundx / _boundy);
     world->height = 20;
     world->delay = (struct timespec){.tv_nsec = _nsec};
+    createDropper(world);
     return world;
 }
 
@@ -18,6 +18,19 @@ void destroyWorld(World *world) {
         f = fp;
     }
     free(world);
+}
+
+void createDropper(World *world) {
+    world->dr = createFruit(_boundx / 2, 0., 0.2, 'x');
+    world->drx = _xsteps / 2;
+}
+
+void moveDropper(World *world, int dir) {
+    if(dir == -1 && world->drx > 0) world->drx--;
+    else if(dir == 1 && world->drx < _xsteps) world->drx++;
+    Fruit *dr = world->dr;
+    dr->x.x = (_boundx - 2 * dr->r) * world->drx / _xsteps + dr->r;
+    display(world, 0);
 }
 
 void addFruit(World *world, Fruit *newf) {
@@ -38,7 +51,7 @@ void applyGravity(World *world) {
 }
 
 double getBiasVel(World *world, double pd) {
-    if(pd < _pdm) return 0;
+    if(pd < _pdm) return 0.;
     return _bias / _dt * (pd - _pdm);
 }
 
@@ -88,35 +101,33 @@ void applyImpulse(World *world) {
 char getPixel(World *world, int i, int j) {
     Vector x = {(j + .5) * _boundx / world->width,
                 (i + .5) * _boundy / world->height};
-    Fruit *f = world->f, *fd = world->fd;
-    if(fd != NULL) {
-        if(vecDist2(x, fd->x) < fd->r * fd->r) {
-            return fd->c;
-        }
+    Fruit *f = world->dr;
+    if(f != NULL) {
+        if(vecDist2(x, f->x) < f->r * f->r) return f->c;
     }
+    f = world->f;
     while(f != NULL) {
-        if(vecDist2(x, f->x) < f->r * f->r) {
-            return f->c;
-        }
+        if(vecDist2(x, f->x) < f->r * f->r) return f->c;
         f = f->prev;
     }
     return ' ';
 }
 
-void display(World *world) {
+void display(World *world, int running) {
     system("clear");
     for(int i = 0; i < world->height; i++) {
         putchar('|');
         for(int j = 0; j < world->width; j++) {
             putchar(getPixel(world, i, j));
         }
-        puts("|\r");
+        printf("|\r\n");
     }
     putchar('|');
     for(int j = 0; j < world->width; j++) {
         putchar('-');
     }
-    puts("|\r");
+    printf("|\r\n");
+    if(!running) printf("> ");
 }
 
 int checkStopped(World *world) {
@@ -131,8 +142,8 @@ int checkStopped(World *world) {
 }
 
 void run(World *world) {
-    addFruit(world, world->fd);
-    world->fd = NULL;
+    addFruit(world, world->dr);
+    world->dr = NULL;
     for(int frame = 0; frame < _maxf; frame++) {
         for(int sf = 0; sf < _subframe; sf++) {
             applyGravity(world);
@@ -140,19 +151,12 @@ void run(World *world) {
             checkFruitCol(world);
             applyImpulse(world);
         }
-        display(world);
-        if(frame % _checkf == 0 && frame > 0) {
+        display(world, 1);
+        if(!(frame % _checkf) && frame > 0) {
             if(checkStopped(world)) break;
         }
         thrd_sleep(&(world->delay), NULL);
     }
-    world->fd = createFruit(_boundx / 2, 0., 0.2, 'x');
-}
-
-void moveLeft(World *world) {
-    world->fd->x.x -= 0.1;
-}
-
-void moveRight(World *world) {
-    world->fd->x.x += 0.1;
+    createDropper(world);
+    display(world, 0);
 }

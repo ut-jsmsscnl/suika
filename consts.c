@@ -19,3 +19,4 @@ const double _checkt = 1.;
 const int _maxf = (int)(_maxt * _fps);
 const int _checkf = (int)(_checkt * _fps);
 const double _dx = .05;
+const int _xsteps = 32;

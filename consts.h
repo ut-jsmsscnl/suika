@@ -11,5 +11,6 @@ const double _dt, _nsec;
 const double _maxt, _checkt;
 const int _maxf, _checkf;
 const double _dx;
+const int _xsteps;
 
 #endif
