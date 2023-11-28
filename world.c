@@ -133,11 +133,6 @@ void run(World *world) {
             applyImpulse(world);
         }
         display(world);
-        printf("frame = %d\n", frame);
-        Fruit *f2 = world->f, *f1 = f2->prev;
-        printf("x1 %lf %lf x2 %lf %lf\n", f1->x.x, f1->x.y, f2->x.x, f2->x.y);
-        printf("v1 %lf %lf v2 %lf %lf\n", f1->v.x, f1->v.y, f2->v.x, f2->v.y);
-        printf("j1 %lf %lf j2 %lf %lf\n", f1->j.x, f1->j.y, f2->j.x, f2->j.y);
         if(frame % _checkf == 0 && frame > 0) {
             if(checkStopped(world)) return;
         }
