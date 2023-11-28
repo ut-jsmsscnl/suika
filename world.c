@@ -1,12 +1,11 @@
 #include "world.h"
 
-World *createWorld() {
+World *createWorld(int argc, char **argv) {
     World *world = (World*)malloc(sizeof(World));
     world->f = NULL;
     world->col = NULL;
     resetDropper(&(world->dr));
-    world->width = (int)(20 * 2.5333 * _boundx / _boundy);
-    world->height = 20;
+    parse(world, argc, argv);
     world->limiti = (int)(_limity * world->height / _boundy);
     world->gameOver = 0;
     world->delay = (struct timespec){.tv_nsec = 1E9 / _fps};
@@ -22,6 +21,20 @@ void deleteWorld(World *world) {
         f = fp;
     }
     free(world);
+}
+
+void parse(World *world, int argc, char **argv) {
+    int twidth = _twidth - 2, theight = _theight - 2;
+    double aspect = _aspect;
+    if(argc > 1) theight = atoi(argv[1]) - 2;
+    if(argc > 2) twidth = atoi(argv[2]) - 2;
+    if(argc > 3) aspect = atoi(argv[3]);
+    world->height = theight;
+    world->width = (int)(world->height * _boundx / _boundy * aspect);
+    if(world->width > twidth) {
+        world->width = twidth;
+        world->height = (int)(world->width * _boundy / _boundx / aspect);
+    }
 }
 
 char getPixel(World *world, int i, int j) {

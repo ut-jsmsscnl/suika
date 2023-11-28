@@ -4,6 +4,9 @@
 
 const int _seed;
 
+const int _twidth, _theight;
+const double _aspect;
+
 const Vector _boundn[3];
 const double _boundx, _boundy;
 

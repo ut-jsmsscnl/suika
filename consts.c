@@ -2,6 +2,10 @@
 
 const int _seed = 20231129;
 
+const int _twidth = 120;
+const int _theight = 25;
+const double _aspect = 2.5333;
+
 const Vector _boundn[3] = {(Vector){0., -1.},
                            (Vector){1., 0.},
                            (Vector){-1., 0.}};
