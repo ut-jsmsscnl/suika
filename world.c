@@ -5,8 +5,9 @@ World *createWorld() {
     world->f = NULL;
     world->width = (int)(20 * 2.5333 * _boundx / _boundy);
     world->height = 20;
-    world->delay = (struct timespec){.tv_nsec = _nsec};
+    world->delay = (struct timespec){.tv_nsec = 1E9 / _fps};
     createDropper(world);
+    srand(_seed);
     return world;
 }
 
@@ -21,16 +22,17 @@ void destroyWorld(World *world) {
 }
 
 void createDropper(World *world) {
-    world->dr = createFruit(_boundx / 2, 0., 0.2, 'x');
-    world->drx = _xsteps / 2;
+    world->dr = createFruit(_boundx / 2, 0., rand() % _dftn);
+    world->drx = _drstep / 2;
 }
 
 void moveDropper(World *world, int dir) {
     if(dir == -1 && world->drx > 0) world->drx--;
-    else if(dir == 1 && world->drx < _xsteps) world->drx++;
-    Fruit *dr = world->dr;
-    dr->x.x = (_boundx - 2 * dr->r) * world->drx / _xsteps + dr->r;
-    display(world, 0);
+    else if(dir == 1 && world->drx < _drstep) world->drx++;
+    double xst = (double)world->drx / _drstep;
+    double noise = _drnr * (rand() / RAND_MAX - .5);
+    double r = world->dr->r;
+    world->dr->x.x = (_boundx - 2 * r) * (xst + noise) + r;
 }
 
 void addFruit(World *world, Fruit *newf) {
@@ -103,11 +105,11 @@ char getPixel(World *world, int i, int j) {
                 (i + .5) * _boundy / world->height};
     Fruit *f = world->dr;
     if(f != NULL) {
-        if(vecDist2(x, f->x) < f->r * f->r) return f->c;
+        if(vecDist2(x, f->x) < f->r * f->r) return _fc[f->type];
     }
     f = world->f;
     while(f != NULL) {
-        if(vecDist2(x, f->x) < f->r * f->r) return f->c;
+        if(vecDist2(x, f->x) < f->r * f->r) return _fc[f->type];
         f = f->prev;
     }
     return ' ';
@@ -134,7 +136,8 @@ int checkStopped(World *world) {
     Fruit *f = world->f;
     int stopped = 1;
     while(f != NULL) {
-        if(vecDist(f->x, f->xp) > _dx) stopped = 0;
+        if(f->xp.x == NAN) stopped = 0;
+        if(vecDist(f->x, f->xp) > _stopth) stopped = 0;
         f->xp = f->x;
         f = f->prev;
     }
@@ -144,6 +147,7 @@ int checkStopped(World *world) {
 void run(World *world) {
     addFruit(world, world->dr);
     world->dr = NULL;
+    checkStopped(world);
     for(int frame = 0; frame < _maxf; frame++) {
         for(int sf = 0; sf < _subframe; sf++) {
             applyGravity(world);
@@ -158,5 +162,4 @@ void run(World *world) {
         thrd_sleep(&(world->delay), NULL);
     }
     createDropper(world);
-    display(world, 0);
 }
