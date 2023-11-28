@@ -18,7 +18,7 @@ void deleteWorld(World *world);
 char getPixel(World *world, int i, int j);
 void display(World *world, int running);
 int checkStopped(Fruit *f);
-void checkMerge(World *world);
+int checkMerge(World *world);
 void run(World *world);
 
 #endif

@@ -67,8 +67,9 @@ int checkStopped(Fruit *f) {
     return stopped;
 }
 
-void checkMerge(World *world) {
+int checkMerge(World *world) {
     ColPair *colp;
+    int merged = 0;
     while(world->col != NULL) {
         if(world->col->f1->type == world->col->f2->type) {
             Fruit *f1 = world->col->f1;
@@ -80,11 +81,13 @@ void checkMerge(World *world) {
             }
             deleteFruit(&(world->f), world->col->f1);
             deleteFruit(&(world->f), world->col->f2);
+            merged = 1;
         }
         colp = world->col->prev;
         free(world->col);
         world->col = colp;
     }
+    return merged;
 }
 
 void run(World *world) {
@@ -97,7 +100,10 @@ void run(World *world) {
             checkBoundCol(world->f);
             checkFruitCol(world->f, &(world->col));
             applyImpulse(world->f);
-            checkMerge(world);
+            if(checkMerge(world)) {
+                frame = 0;
+                checkStopped(world->f);
+            };
         }
         display(world, 1);
         if(!(frame % _checkf) && frame > 0) {
