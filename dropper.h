@@ -4,10 +4,11 @@
 
 typedef struct _Dropper {
     Fruit *f;
-    int x;
+    int xs;
 } Dropper;
 
 void resetDropper(Dropper *dr);
 void moveDropper(Dropper *dr, int dir);
+double getx(Dropper *dr);
 
 #endif

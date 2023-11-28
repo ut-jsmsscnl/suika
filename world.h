@@ -2,6 +2,7 @@
 #define WORLD_H_INCLUDED
 #include <stdio.h>
 #include <threads.h>
+#include "physics.h"
 #include "dropper.h"
 
 typedef struct _World {
@@ -14,11 +15,6 @@ typedef struct _World {
 World *createWorld();
 void destroyWorld(World *world);
 void addFruit(World *world, Fruit *newf);
-void applyGravity(World *world);
-double getBiasVel(World *world, double pd);
-void checkBoundCol(World *world);
-void checkFruitCol(World *world);
-void applyImpulse(World *world);
 char getPixel(World *world, int i, int j);
 void display(World *world, int running);
 int checkStopped(World *world);

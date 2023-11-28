@@ -3,7 +3,6 @@
 int main(int argc, char **argv) {
     char ch = ' ';
     World *world = createWorld();
-    display(world, 0);
     system("/bin/stty raw onlcr");
     while((ch = getchar()) != '.') {
         if(ch == 's') run(world);

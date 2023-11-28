@@ -11,8 +11,5 @@ typedef struct _Fruit {
 } Fruit;
 
 Fruit *createFruit(double x, double y, int type);
-Vector getImpulse(Vector n, Vector v, double rm, double vb);
-void boundCollision(Fruit *f, Vector n, double vb);
-void fruitCollision(Fruit *f1, Fruit *f2, double vb);
 
 #endif

@@ -13,7 +13,7 @@ const double _e, _mu, _bias, _pdm;
 const int _fps, _subframe;
 const double _dt;
 
-const double _maxt, _checkt, _stopth;
+const double _maxt, _checkt, _xth, _vth;
 const int _maxf, _checkf;
 
 const int _ftn, _dftn;

@@ -8,6 +8,7 @@ World *createWorld() {
     world->height = 20;
     world->delay = (struct timespec){.tv_nsec = 1E9 / _fps};
     srand(_seed);
+    display(world, 0);
     return world;
 }
 
@@ -27,63 +28,6 @@ void addFruit(World *world, Fruit *newf) {
         newf->prev = world->f;
     }
     world->f = newf;
-}
-
-void applyGravity(World *world) {
-    Fruit *f = world->f;
-    while(f != NULL) {
-        f->j = (Vector){0., 0.};
-        vecMultAddA(&(f->v), _gravity, _dt);
-        f = f->prev;
-    }
-}
-
-double getBiasVel(World *world, double pd) {
-    if(pd < _pdm) return 0.;
-    return _bias / _dt * (pd - _pdm);
-}
-
-void checkBoundCol(World *world) {
-    Fruit *f = world->f;
-    double pd[3], vb;
-    while(f != NULL) {
-        pd[0] = f->x.y + f->r - _boundy;
-        pd[1] = f->r - f->x.x;
-        pd[2] = f->x.x + f->r - _boundx;
-        for(int bi = 0; bi < 3; bi++) {
-            if(pd[bi] > 0.) {
-                vb = getBiasVel(world, pd[bi]);
-                boundCollision(f, _boundn[bi], vb);
-            }
-        }
-        f = f->prev;
-    }
-}
-
-void checkFruitCol(World *world) {
-    Fruit *f1 = world->f, *f2;
-    double pd, vb;
-    while(f1 != NULL) {
-        f2 = f1->prev;
-        while(f2 != NULL) {
-            pd = f1->r + f2->r - vecDist(f1->x, f2->x);
-            if(pd > 0.) {
-                vb = getBiasVel(world, pd);
-                fruitCollision(f1, f2, vb);
-            }
-            f2 = f2->prev;
-        }
-        f1 = f1->prev;
-    }
-}
-
-void applyImpulse(World *world) {
-    Fruit *f = world->f;
-    while(f != NULL) {
-        vecMultAddA(&(f->v), f->j, 1 / f->m);
-        vecMultAddA(&(f->x), f->v, _dt);
-        f = f->prev;
-    }
 }
 
 char getPixel(World *world, int i, int j) {
@@ -123,7 +67,8 @@ int checkStopped(World *world) {
     int stopped = 1;
     while(f != NULL) {
         if(f->xp.x == NAN) stopped = 0;
-        if(vecDist(f->x, f->xp) > _stopth) stopped = 0;
+        else if(vecDist(f->x, f->xp) > _xth) stopped = 0;
+        else if(vecNorm(f->v) > _vth) stopped = 0;
         f->xp = f->x;
         f = f->prev;
     }
@@ -136,10 +81,10 @@ void run(World *world) {
     checkStopped(world);
     for(int frame = 0; frame < _maxf; frame++) {
         for(int sf = 0; sf < _subframe; sf++) {
-            applyGravity(world);
-            checkBoundCol(world);
-            checkFruitCol(world);
-            applyImpulse(world);
+            applyGravity(world->f);
+            checkBoundCol(world->f);
+            checkFruitCol(world->f);
+            applyImpulse(world->f);
         }
         display(world, 1);
         if(!(frame % _checkf) && frame > 0) {
