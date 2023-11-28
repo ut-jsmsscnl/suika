@@ -7,17 +7,18 @@
 
 typedef struct _World {
     Fruit *f;
+    ColPair *col;
     Dropper dr;
     int width, height;
     struct timespec delay;
 } World;
 
 World *createWorld();
-void destroyWorld(World *world);
-void addFruit(World *world, Fruit *newf);
+void deleteWorld(World *world);
 char getPixel(World *world, int i, int j);
 void display(World *world, int running);
-int checkStopped(World *world);
+int checkStopped(Fruit *f);
+void checkMerge(World *world);
 void run(World *world);
 
 #endif

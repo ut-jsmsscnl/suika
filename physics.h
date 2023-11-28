@@ -5,7 +5,7 @@
 void applyGravity(Fruit *f);
 double getBiasVel(double pd);
 void checkBoundCol(Fruit *f);
-void checkFruitCol(Fruit *f1);
+void checkFruitCol(Fruit *f, ColPair **col);
 void applyImpulse(Fruit *f);
 Vector getImpulse(Vector n, Vector v, double rm, double vb);
 

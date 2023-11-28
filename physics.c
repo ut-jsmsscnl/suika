@@ -30,8 +30,8 @@ void checkBoundCol(Fruit *f) {
     }
 }
 
-void checkFruitCol(Fruit *f1) {
-    Fruit *f2;
+void checkFruitCol(Fruit *f, ColPair **col) {
+    Fruit *f1 = f, *f2;
     double pd;
     while(f1 != NULL) {
         f2 = f1->prev;
@@ -45,6 +45,7 @@ void checkFruitCol(Fruit *f1) {
                 Vector j = getImpulse(n, v, rm, vb);
                 vecAddA(&(f1->j), j);
                 vecAddA(&(f2->j), vecMinus(j));
+                addColPair(col, f1, f2);
             }
             f2 = f2->prev;
         }

@@ -3,6 +3,7 @@
 World *createWorld() {
     World *world = (World*)malloc(sizeof(World));
     world->f = NULL;
+    world->col = NULL;
     resetDropper(&(world->dr));
     world->width = (int)(20 * 2.5333 * _boundx / _boundy);
     world->height = 20;
@@ -12,22 +13,14 @@ World *createWorld() {
     return world;
 }
 
-void destroyWorld(World *world) {
-    Fruit *f = world->f, *fp = NULL;
+void deleteWorld(World *world) {
+    Fruit *f = world->f, *fp;
     while(f != NULL) {
         fp = f->prev;
         free(f);
         f = fp;
     }
     free(world);
-}
-
-void addFruit(World *world, Fruit *newf) {
-    if(world->f != NULL) {
-        world->f->next = newf;
-        newf->prev = world->f;
-    }
-    world->f = newf;
 }
 
 char getPixel(World *world, int i, int j) {
@@ -62,8 +55,7 @@ void display(World *world, int running) {
     if(!running) printf("> ");
 }
 
-int checkStopped(World *world) {
-    Fruit *f = world->f;
+int checkStopped(Fruit *f) {
     int stopped = 1;
     while(f != NULL) {
         if(f->xp.x == NAN) stopped = 0;
@@ -75,20 +67,41 @@ int checkStopped(World *world) {
     return stopped;
 }
 
+void checkMerge(World *world) {
+    ColPair *colp;
+    while(world->col != NULL) {
+        if(world->col->f1->type == world->col->f2->type) {
+            Fruit *f1 = world->col->f1;
+            Fruit *f2 = world->col->f2;
+            if(f1->type < _ftn - 1) {
+                Vector x = vecMult(vecAdd(f1->x, f2->x), .5);
+                Fruit *newf = createFruit(x.x, x.y, f1->type + 1);
+                addFruit(&(world->f), newf);
+            }
+            deleteFruit(&(world->f), world->col->f1);
+            deleteFruit(&(world->f), world->col->f2);
+        }
+        colp = world->col->prev;
+        free(world->col);
+        world->col = colp;
+    }
+}
+
 void run(World *world) {
-    addFruit(world, world->dr.f);
+    addFruit(&(world->f), world->dr.f);
     world->dr.f = NULL;
-    checkStopped(world);
+    checkStopped(world->f);
     for(int frame = 0; frame < _maxf; frame++) {
         for(int sf = 0; sf < _subframe; sf++) {
             applyGravity(world->f);
             checkBoundCol(world->f);
-            checkFruitCol(world->f);
+            checkFruitCol(world->f, &(world->col));
             applyImpulse(world->f);
+            checkMerge(world);
         }
         display(world, 1);
         if(!(frame % _checkf) && frame > 0) {
-            if(checkStopped(world)) break;
+            if(checkStopped(world->f)) break;
         }
         thrd_sleep(&(world->delay), NULL);
     }
