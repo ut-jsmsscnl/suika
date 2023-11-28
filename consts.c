@@ -6,9 +6,9 @@ const Vector _boundn[3] = {(Vector){0., -1.},
                            (Vector){1., 0.},
                            (Vector){-1., 0.}};
 const double _boundx = 2.;
-const double _boundy = 3;
+const double _boundy = 3.;
 
-const Vector _gravity = (Vector){0., 5.};
+const Vector _gravity = (Vector){0., 3.};
 const double _e = .2;
 const double _mu = .1;
 const double _bias = .2;
@@ -29,6 +29,7 @@ const int _ftn = 5;
 const int _dftn = 3;
 const double _fr[] = {.15, .2, .25, .4, .5};
 const char _fc[] = {'x', '0', 'O', '+', '-'};
+const double _limity = 2 * _fr[_dftn - 1] + _fr[_ftn - 1];
 
 const int _drstep = 32;
 const double _drnr = .01;

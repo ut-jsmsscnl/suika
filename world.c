@@ -7,9 +7,10 @@ World *createWorld() {
     resetDropper(&(world->dr));
     world->width = (int)(20 * 2.5333 * _boundx / _boundy);
     world->height = 20;
+    world->limiti = (int)(_limity * world->height / _boundy);
+    world->gameOver = 0;
     world->delay = (struct timespec){.tv_nsec = 1E9 / _fps};
     srand(_seed);
-    display(world, 0);
     return world;
 }
 
@@ -35,6 +36,7 @@ char getPixel(World *world, int i, int j) {
         if(vecDist2(x, f->x) < f->r * f->r) return _fc[f->type];
         f = f->prev;
     }
+    if(i == world->limiti) return 'X';
     return ' ';
 }
 
@@ -52,23 +54,24 @@ void display(World *world, int running) {
         putchar('-');
     }
     printf("|\r\n");
-    if(!running) printf("> ");
+    if(world->gameOver) printf("GAME OVER > ");
+    else if(!running) printf("> ");
 }
 
-int checkStopped(Fruit *f) {
-    int stopped = 1;
+void updatePrev(World *world) {
+    world->stopped = 1;
+    Fruit *f = world->f;
     while(f != NULL) {
-        if(f->xp.x == NAN) stopped = 0;
-        else if(vecDist(f->x, f->xp) > _xth) stopped = 0;
-        else if(vecNorm(f->v) > _vth) stopped = 0;
+        if(f->xp.x == NAN) world->stopped = 0;
+        else if(vecDist(f->x, f->xp) > _xth) world->stopped = 0;
+        else if(vecNorm(f->v) > _vth) world->stopped = 0;
         f->xp = f->x;
         f = f->prev;
     }
-    return stopped;
 }
 
-int checkMerge(World *world) {
-    int merged = 0;
+void merge(World *world) {
+    world->merged = 0;
     ColPair *colp;
     while(world->col != NULL) {
         if(world->col->active) {
@@ -89,35 +92,50 @@ int checkMerge(World *world) {
             }
             deleteFruit(&(world->f), world->col->f1);
             deleteFruit(&(world->f), world->col->f2);
-            merged = 1;
+            world->merged = 1;
         }
         colp = world->col->prev;
         free(world->col);
         world->col = colp;
     }
-    return merged;
+}
+
+void checkGameOver(World *world) {
+    world->gameOver = 0;
+    Fruit *f = world->f;
+    while(f != NULL) {
+        if(f->x.y < _limity) {
+            world->gameOver = 1;
+            return;
+        }
+        f = f->prev;
+    }
 }
 
 void run(World *world) {
     addFruit(&(world->f), world->dr.f);
     world->dr.f = NULL;
-    checkStopped(world->f);
+    updatePrev(world);
     for(int frame = 0; frame < _maxf; frame++) {
         for(int sf = 0; sf < _subframe; sf++) {
             applyGravity(world->f);
             checkBoundCol(world->f);
             checkFruitCol(world->f, &(world->col));
             applyImpulse(world->f);
-            if(checkMerge(world)) {
-                frame = 0;
-                checkStopped(world->f);
-            };
+            merge(world);
         }
         display(world, 1);
+        if(world->merged) {
+            world->merged = 0;
+            frame = 0;
+            updatePrev(world);
+        };
         if(!(frame % _checkf) && frame > 0) {
-            if(checkStopped(world->f)) break;
+            updatePrev(world);
+            if(world->stopped) break;
         }
         thrd_sleep(&(world->delay), NULL);
     }
-    resetDropper(&(world->dr));
+    checkGameOver(world);
+    if(!world->gameOver) resetDropper(&(world->dr));
 }

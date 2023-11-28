@@ -19,6 +19,8 @@ const int _maxf, _checkf;
 const int _ftn, _dftn;
 const double _fr[5];
 const char _fc[5];
+const double _limity;
+const int _limiti;
 
 const int _drstep;
 const double _drnr;

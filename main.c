@@ -3,11 +3,20 @@
 int main(int argc, char **argv) {
     char ch = ' ';
     World *world = createWorld();
+    display(world, 0);
     system("/bin/stty raw onlcr");
     while((ch = getchar()) != '.') {
-        if(ch == 's') run(world);
-        else if(ch == 'a') moveDropper(&(world->dr), -1);
-        else if(ch == 'd') moveDropper(&(world->dr), 1);
+        if(world->gameOver) {
+            if(ch == 'r') {
+                deleteWorld(world);
+                world = createWorld();
+            }
+        }
+        else {
+            if(ch == 's') run(world);
+            else if(ch == 'a') moveDropper(&(world->dr), -1);
+            else if(ch == 'd') moveDropper(&(world->dr), 1);
+        }
         display(world, 0);
     }
     system("clear");

@@ -2,7 +2,7 @@
 
 void resetDropper(Dropper *dr) {
     dr->xs = _drstep / 2;
-    dr->f = createFruit(0., 0., rand() % _dftn);
+    dr->f = createFruit(0., _fr[_dftn - 1], rand() % _dftn);
     dr->f->x.x = getx(dr);
 }
 
