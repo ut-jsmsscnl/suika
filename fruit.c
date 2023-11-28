@@ -3,6 +3,7 @@
 Fruit *createFruit(double x, double y, double r, char c) {
     Fruit *f = (Fruit*)malloc(sizeof(Fruit));
     f->x = (Vector){x, y};
+    f->xp = (Vector){x, y};
     f->v = (Vector){0., 0.};
     f->j = (Vector){0., 0.};
     f->r = r;
@@ -19,7 +20,7 @@ Vector getImpulse(Vector n, Vector v, double rm, double vb) {
     Vector vt = vecSub(v, vn);
     Vector t = vecNormalize(vt);
     double vt_ = vecNorm(vt);
-    double j = -(1+_e) * rm * vn_;
+    double j = -(1 + _e) * rm * vn_;
     Vector jn = vecMult(n, j);
     Vector jt;
     if(j * _mu > rm * vt_) {

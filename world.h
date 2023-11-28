@@ -20,6 +20,7 @@ void checkFruitCol(World *world);
 void applyImpulse(World *world);
 char getPixel(World *world, int i, int j);
 void display(World *world);
+int checkStopped(World *world);
 void run(World *world);
 
 #endif
