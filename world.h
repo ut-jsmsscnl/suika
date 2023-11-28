@@ -2,18 +2,17 @@
 #define WORLD_H_INCLUDED
 #include <stdio.h>
 #include <threads.h>
-#include "fruit.h"
+#include "dropper.h"
 
 typedef struct _World {
-    Fruit *f, *dr;
-    int drx, width, height;
+    Fruit *f;
+    Dropper dr;
+    int width, height;
     struct timespec delay;
 } World;
 
 World *createWorld();
 void destroyWorld(World *world);
-void createDropper(World *world);
-void moveDropper(World *world, int dir);
 void addFruit(World *world, Fruit *newf);
 void applyGravity(World *world);
 double getBiasVel(World *world, double pd);

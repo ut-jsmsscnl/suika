@@ -7,8 +7,8 @@ int main(int argc, char **argv) {
     system("/bin/stty raw onlcr");
     while((ch = getchar()) != '.') {
         if(ch == 's') run(world);
-        else if(ch == 'a') moveDropper(world, -1);
-        else if(ch == 'd') moveDropper(world, 1);
+        else if(ch == 'a') moveDropper(&(world->dr), -1);
+        else if(ch == 'd') moveDropper(&(world->dr), 1);
         display(world, 0);
     }
     system("clear");

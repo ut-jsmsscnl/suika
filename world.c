@@ -3,10 +3,10 @@
 World *createWorld() {
     World *world = (World*)malloc(sizeof(World));
     world->f = NULL;
+    resetDropper(&(world->dr));
     world->width = (int)(20 * 2.5333 * _boundx / _boundy);
     world->height = 20;
     world->delay = (struct timespec){.tv_nsec = 1E9 / _fps};
-    createDropper(world);
     srand(_seed);
     return world;
 }
@@ -19,20 +19,6 @@ void destroyWorld(World *world) {
         f = fp;
     }
     free(world);
-}
-
-void createDropper(World *world) {
-    world->dr = createFruit(_boundx / 2, 0., rand() % _dftn);
-    world->drx = _drstep / 2;
-}
-
-void moveDropper(World *world, int dir) {
-    if(dir == -1 && world->drx > 0) world->drx--;
-    else if(dir == 1 && world->drx < _drstep) world->drx++;
-    double xst = (double)world->drx / _drstep;
-    double noise = _drnr * (rand() / RAND_MAX - .5);
-    double r = world->dr->r;
-    world->dr->x.x = (_boundx - 2 * r) * (xst + noise) + r;
 }
 
 void addFruit(World *world, Fruit *newf) {
@@ -103,7 +89,7 @@ void applyImpulse(World *world) {
 char getPixel(World *world, int i, int j) {
     Vector x = {(j + .5) * _boundx / world->width,
                 (i + .5) * _boundy / world->height};
-    Fruit *f = world->dr;
+    Fruit *f = world->dr.f;
     if(f != NULL) {
         if(vecDist2(x, f->x) < f->r * f->r) return _fc[f->type];
     }
@@ -145,8 +131,8 @@ int checkStopped(World *world) {
 }
 
 void run(World *world) {
-    addFruit(world, world->dr);
-    world->dr = NULL;
+    addFruit(world, world->dr.f);
+    world->dr.f = NULL;
     checkStopped(world);
     for(int frame = 0; frame < _maxf; frame++) {
         for(int sf = 0; sf < _subframe; sf++) {
@@ -161,5 +147,5 @@ void run(World *world) {
         }
         thrd_sleep(&(world->delay), NULL);
     }
-    createDropper(world);
+    resetDropper(&(world->dr));
 }
