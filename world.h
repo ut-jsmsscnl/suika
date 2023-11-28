@@ -10,7 +10,7 @@ typedef struct _World {
     ColPair *col;
     Dropper dr;
     int width, height, limiti;
-    int stopped, merged, gameOver;
+    int score, stopped, merged, gameOver;
     struct timespec delay;
 } World;
 

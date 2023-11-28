@@ -1,10 +1,11 @@
 #include "world.h"
 
 int main(int argc, char **argv) {
-    char ch = ' ';
+    system("/bin/stty raw onlcr");
+    srand(_seed);
     World *world = createWorld(argc, argv);
     display(world, 0);
-    system("/bin/stty raw onlcr");
+    char ch = ' ';
     while((ch = getchar()) != '.') {
         if(world->gameOver) {
             if(ch == 'r') {
@@ -19,8 +20,8 @@ int main(int argc, char **argv) {
         }
         display(world, 0);
     }
+    deleteWorld(world);
     system("clear");
     system("/bin/stty cooked");
-    deleteWorld(world);
     return 0;
 }

@@ -7,9 +7,8 @@ World *createWorld(int argc, char **argv) {
     resetDropper(&(world->dr));
     parse(world, argc, argv);
     world->limiti = (int)(_limity * world->height / _boundy);
-    world->gameOver = 0;
+    world->score = world->gameOver = 0;
     world->delay = (struct timespec){.tv_nsec = 1E9 / _fps};
-    srand(_seed);
     return world;
 }
 
@@ -24,9 +23,9 @@ void deleteWorld(World *world) {
 }
 
 void parse(World *world, int argc, char **argv) {
-    int twidth = _twidth - 2, theight = _theight - 2;
+    int twidth = _twidth - 2, theight = _theight - 3;
     double aspect = _aspect;
-    if(argc > 1) theight = atoi(argv[1]) - 2;
+    if(argc > 1) theight = atoi(argv[1]) - 3;
     if(argc > 2) twidth = atoi(argv[2]) - 2;
     if(argc > 3) aspect = atoi(argv[3]);
     world->height = theight;
@@ -55,6 +54,7 @@ char getPixel(World *world, int i, int j) {
 
 void display(World *world, int running) {
     system("clear");
+    printf("SCORE : %d\r\n", world->score);
     for(int i = 0; i < world->height; i++) {
         putchar('|');
         for(int j = 0; j < world->width; j++) {
@@ -90,6 +90,7 @@ void merge(World *world) {
         if(world->col->active) {
             Fruit *f1 = world->col->f1;
             Fruit *f2 = world->col->f2;
+            int type = f1->type;
             ColPair *colp = world->col->prev;
             while(colp != NULL) {
                 if(colp->f1 == f1 || colp->f2 == f1 ||
@@ -98,13 +99,14 @@ void merge(World *world) {
                 }
                 colp = colp->prev;
             }
-            if(f1->type < _ftn - 1) {
+            if(type < _ftn - 1) {
                 Vector x = vecMult(vecAdd(f1->x, f2->x), .5);
-                Fruit *newf = createFruit(x.x, x.y, f1->type + 1);
+                Fruit *newf = createFruit(x.x, x.y, type + 1);
                 addFruit(&(world->f), newf);
             }
             deleteFruit(&(world->f), world->col->f1);
             deleteFruit(&(world->f), world->col->f2);
+            world->score += _fs[type];
             world->merged = 1;
         }
         colp = world->col->prev;

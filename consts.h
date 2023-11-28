@@ -20,10 +20,10 @@ const double _maxt, _checkt, _xth, _vth;
 const int _maxf, _checkf;
 
 const int _ftn, _dftn;
-const double _fr[5];
-const char _fc[5];
+extern const double _fr[];
+extern const char _fc[];
+extern const int _fs[];
 const double _limity;
-const int _limiti;
 
 const int _drstep;
 const double _drnr;
