@@ -23,7 +23,6 @@ const double _maxt = 10.;
 const double _checkt = 1.;
 const int _maxf = (int)(_maxt * _fps);
 const int _checkf = (int)(_checkt * _fps);
-
 const double _xth = .05;
 const double _vth = .1;
 

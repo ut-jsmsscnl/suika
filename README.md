@@ -4,35 +4,40 @@
 
 以下にREADMEの例が書いてあります。自由に編集してください。READMEをちゃんと書かないと減点します。READMEの書き方（マークダウンの文法）は[こちら](https://eeic-software1.github.io/2023/markdown/)。
 
-# SUICA
+# スイカ in C
 
 物理エンジンを適用した、ターミナルベースのスイカゲームを作りました。
 
 ```
-SCORE : 43500
-|            444444                   |
-|          444444444                  |
-|           44444444                  |
-|             4444                    |
-|                                     |
-|                                     |
-|                                     |
-|XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
-| 55555555                        222 |
-|55555555555   44444  22222      22222|
-|55555555555 4444444442222277777777   |
-| 55555555   444444444  7777777777777 |
-|     666666666444444  777777777777777|
-|   666666666666622222  77777777777777|
-|   666666666666622222   777777777777 |
-|    6666666666688888888888 777777    |
-|33333366666668888888888888888    1111|
-|3333333     888888888888888888   1111|
-| 3333 4     8888888888888888883333333|
-|  444444444 8888888888888888883333333|
-|  444444444  8888888888888888     11 |
-|   444444411111 8888888888       1111|
-|-------------------------------------|
+SCORE : 14650
+|                                    |
+|                2222                |
+|               222222               |
+|                 22                 |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+| 11                                 |
+|1111                                |
+| 1333                               |
+|3333333                             |
+|3333333          77777        444   |
+| 33333   1111177777777777   44444444|
+|  666666661117777777777777 444444444|
+|666666666666777777777777777 44444444|
+|66666666666677777777777777   44444  |
+|666666666666 7777777777777333333    |
+| 66666666666   777777777 33333331111|
+|  66666666                33333 1111|
+|------------------------------------|
 > 
 ```
 
@@ -67,29 +72,34 @@ $ ./suica 40 60
 
 ```
 SCORE : 0
-|                                     |
-|                22222                |
-|                22222                |
-|                                     |
-|                                     |
-|                                     |
-|                                     |
-|XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
-|                                     |
-|                                     |
-|                                     |
-|                                     |
-|                                     |
-|                                     |
-|                                     |
-|                                     |
-|                                     |
-|                                     |
-|                                     |
-|                                     |
-|                                     |
-|                                     |
-|-------------------------------------|
+|               444444               |
+|              44444444              |
+|             444444444              |
+|              44444444              |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|                                    |
+|------------------------------------|
 > 
 ```
 
@@ -128,7 +138,7 @@ void run(World *world) {
             applyGravity(world->f);
             checkBoundCol(world->f);
             checkFruitCol(world->f, &(world->col));
-            applyImpulse(world->f);
+            applyVelocity(world->f);
             merge(world);
         }
         display(world, 1);
@@ -164,12 +174,16 @@ void checkFruitCol(Fruit *f, ColPair **col) {
             pd = f1->r + f2->r - vecDist(f1->x, f2->x);
             if(pd > 0.) {
                 Vector n = vecNormalize(vecSub(f1->x, f2->x));
+                Vector t = vecCross(n, 1.);
                 Vector v = vecSub(f1->v, f2->v);
-                double rm = 1 / (1 / f1->m + 1 / f2->m);
+                double mr = 1 / (1 / f1->m + 1 / f2->m);
                 double vb = getBiasVel(pd);
-                Vector j = getImpulse(n, v, rm, vb);
-                vecAddA(&(f1->j), j);
-                vecAddA(&(f2->j), vecMinus(j));
+                double jn = getNormalImpulse(n, v, mr, vb);
+                double jt = getTangentImpulse(t, v, mr, jn);
+                vecMultAddA(&(f1->v), n, jn / f1->m);
+                vecMultAddA(&(f1->v), t, jt / f1->m);
+                vecMultAddA(&(f2->v), n, -jn / f2->m);
+                vecMultAddA(&(f2->v), t, -jt / f2->m);
                 if(f1->type == f2->type) addColPair(col, f1, f2);
             }
             f2 = f2->prev;
@@ -185,23 +199,20 @@ void checkFruitCol(Fruit *f, ColPair **col) {
 ```c
 //Defined in physics.c
 
-Vector getImpulse(Vector n, Vector v, double rm, double vb) {
-    double vn_ = vecDot(n, v) - vb;
-    if(vn_ > 0.) return (Vector){0., 0.};
-    Vector vn = vecMult(n, vn_);
-    Vector vt = vecSub(v, vn);
-    Vector t = vecNormalize(vt);
-    double vt_ = vecNorm(vt);
-    double j = -(1 + _e) * rm * vn_;
-    Vector jn = vecMult(n, j);
-    Vector jt;
-    if(j * _mu > rm * vt_) {
-        jt = vecMult(t, -rm * vt_);
+double getNormalImpulse(Vector n, Vector v, double mr, double vb) {
+    double vn = vecDot(n, v) - vb;
+    if(vn > 0.) return 0.;
+    return -(1 + _e) * mr * vn;
+}
+
+double getTangentImpulse(Vector t, Vector v, double mr, double jn) {
+    double vt = vecDot(t, v);
+    if(vt > 0.) {
+        if(_mu * jn > mr * vt) return -mr * vt;
+        return -_mu * jn;
     }
-    else {
-        jt = vecMult(t, -j * _mu);
-    }
-    return vecAdd(jn, jt);
+    if(_mu * jn > mr * -vt) return -mr * vt;
+    return _mu * jn;
 }
 ```
 
@@ -229,7 +240,8 @@ void merge(World *world) {
             }
             if(type < _ftn - 1) {
                 Vector x = vecMult(vecAdd(f1->x, f2->x), .5);
-                Fruit *newf = createFruit(x.x, x.y, type + 1);
+                Vector v = vecMult(vecAdd(f1->v, f2->v), .5);
+                Fruit *newf = createFruit(x, v, type + 1);
                 addFruit(&(world->f), newf);
             }
             deleteFruit(&(world->f), world->col->f1);
@@ -246,65 +258,52 @@ void merge(World *world) {
 
 ## 変数
 
-`consts.c`で定義された変数を紹介します。自由に変更してみてください。
+`consts.c`で定義された変数を紹介します。
 
-`_seed` 乱数のシード
+- 乱数関連
+  - `_seed` 乱数のシード
 
-`_twidth` 画面の幅（文字）の既定値
+- 画面表示に関する既定値
+  - `_twidth` 画面の幅（文字）の既定値
+  - `_theight` 画面の高さ（文字）の既定値
+  - `_aspect` フォントのアスペクト比の既定値
 
-`_theight` 画面の高さ（文字）の既定値
+- ボードのサイズ
+  - `_boundx` 右の境界のx座標
+  - `_boundy` 下の境界のy座標
 
-`_aspect` フォントのアスペクト比の既定値
+- 物理計算に関する変数
+  - `_gravity` 重力
+  - `_e` 弾性係数
+  - `_mu` 摩擦係数
+  - `_bias` バイアス速度の係数
+  - `_pdm` 最小限の侵入深さ
 
-`_boundn` 境界の法線ベクトル
+- フレームと時間関連
+  - `_fps` フレームレート
+  - `_subframe` フレームの間の計算回数
+  - `_dt` 時間間隔
 
-`_boundx` 右の境界のx座標
+- 安定化関連
+  - `_maxt` シミュレーションの最大時間（秒）
+  - `_checkt` 安定な状態なのかチェックする時間間隔（秒）
+  - `_maxf` シミュレーションの最大時間（フレーム）
+  - `_checkf` 安定な状態なのかチェックする時間間隔（フレーム）
+  - `_xth` 安定な状態になる移動のしきい値
+  - `_vth` 安定な状態になる速度のしきい値
 
-`_boundy` 下の境界のy座標
+- 果物の性質
+  - `_ftn` 果物の種類
+  - `_dftn` 落とす果物の種類
+  - `_fr` 果物の半径
+  - `_fs` 果物が合体した時の点数
+  - `_fch` 果物を表す文字
+  - `_fcol` 果物の色（エスケープシーケンス）
 
-`_gravity` 重力
-
-`_e` 弾性係数
-
-`_mu` 摩擦係数
-
-`_bias` バイアス速度の係数
-
-`_pdm` 最小限の侵入深さ
-
-`_fps` フレームレート
-
-`_subframe` フレームの間の計算回数
-
-`_dt` 時間間隔
-
-`_maxt` シミュレーションの最大時間（秒）
-
-`_checkt` 安定な状態なのかチェックする時間間隔（秒）
-
-`_maxf` シミュレーションの最大時間（フレーム）
-
-`_checkf` 安定な状態なのかチェックする時間間隔（フレーム）
-
-`_xth` 安定な状態になる移動のしきい値
-
-`_vth` 安定な状態になる速度のしきい値
-
-`_ftn` 果物の種類
-
-`_dftn` 落とす果物の種類
-
-`_fr` 果物の半径
-
-`_fc` 果物を表す文字
-
-`_fs` 果物が合体した時の点数
-
-`_limity` ゲームオーバーになる境界線
-
-`_drstep` 果物を落とす位置の移動の細かさ
-
-`_drnr` 果物を落とす位置のランダムの度合い
+- 落とされる果物関連
+  - `_drstep` 落とす位置の移動の細かさ
+  - `_drxn` 落とす位置のランダムの度合い
+  - `_drvn` 初期速度のランダムの度合い
 
 ## 参考文献
 

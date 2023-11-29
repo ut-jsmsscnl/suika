@@ -25,7 +25,6 @@ extern const double _dt;
 
 extern const double _maxt, _checkt;
 extern const int _maxf, _checkf;
-
 extern const double _xth, _vth;
 
 extern const int _ftn, _dftn;
