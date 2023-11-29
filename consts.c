@@ -37,4 +37,5 @@ const char *_fcol[] = {_BLUE, _RED, _CYAN, _MAGENTA,
 const double _limity = 2 * _fr[_dftn - 1] + _fr[_ftn - 1];
 
 const int _drstep = 32;
-const double _drnr = .01;
+const double _drxn = .02;
+const double _drvn = .01;

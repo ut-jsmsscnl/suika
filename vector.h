@@ -1,5 +1,6 @@
 #ifndef VECTOR_H_INCLUDED
 #define VECTOR_H_INCLUDED
+#include <stdlib.h>
 #include <math.h>
 
 typedef struct _Vector {
@@ -69,6 +70,14 @@ static inline Vector vecNormalize(Vector a) {
 
 static inline Vector vecCross(Vector a, double k) {
     return (Vector){-a.y * k, a.x * k};
+}
+
+static inline int randInt(int max) {
+    return rand() % max;
+}
+
+static inline double randRange(double range) {
+    return range * ((double)rand() / RAND_MAX - .5);
 }
 
 #endif

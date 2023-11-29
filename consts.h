@@ -36,6 +36,6 @@ extern const char *_fcol[];
 const double _limity;
 
 const int _drstep;
-const double _drnr;
+const double _drxn, _drvn;
 
 #endif

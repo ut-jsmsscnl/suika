@@ -3,8 +3,8 @@
 void resetDropper(Dropper *dr) {
     dr->xs = _drstep / 2;
     Vector x = (Vector){NAN, _fr[_dftn - 1]};
-    Vector v = (Vector){0., 0.};
-    dr->f = createFruit(x, v, rand() % _dftn);
+    Vector v = (Vector){randRange(_drvn), randRange(_drvn)};
+    dr->f = createFruit(x, v, randInt(_dftn));
     dr->f->x.x = getx(dr);
 }
 
@@ -16,7 +16,7 @@ void moveDropper(Dropper *dr, int dir) {
 
 double getx(Dropper *dr) {
     double xstd = (double)dr->xs / _drstep;
-    double noise = _drnr * ((double)rand() / RAND_MAX - .5);
+    double noise = randRange(_drxn);
     double r = dr->f->r;
     return (_boundx - 2 * r) * (xstd + noise) + r;
 }
