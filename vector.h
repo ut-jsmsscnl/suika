@@ -67,4 +67,8 @@ static inline Vector vecNormalize(Vector a) {
     return (Vector){0., 0.};
 }
 
+static inline Vector vecCross(Vector a, double k) {
+    return (Vector){-a.y * k, a.x * k};
+}
+
 #endif

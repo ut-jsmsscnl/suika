@@ -6,9 +6,6 @@ const int _twidth = 120;
 const int _theight = 25;
 const double _aspect = 2.5333;
 
-const Vector _boundn[3] = {(Vector){0., -1.},
-                           (Vector){1., 0.},
-                           (Vector){-1., 0.}};
 const double _boundx = 2.;
 const double _boundy = 3.;
 
@@ -16,7 +13,7 @@ const Vector _gravity = (Vector){0., 3.};
 const double _e = .2;
 const double _mu = .1;
 const double _bias = .2;
-const double _pdm = .01;
+const double _pdth = .01;
 
 const int _fps = 10;
 const int _subframe = 5;

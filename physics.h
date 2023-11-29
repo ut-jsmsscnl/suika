@@ -7,6 +7,7 @@ double getBiasVel(double pd);
 void checkBoundCol(Fruit *f);
 void checkFruitCol(Fruit *f, ColPair **col);
 void applyVelocity(Fruit *f);
-Vector getImpulse(Vector n, Vector v, double rm, double vb);
+double getNormalImpulse(Vector n, Vector v, double mr, double vb);
+double getTangentImpulse(Vector t, Vector v, double mr, double jn);
 
 #endif

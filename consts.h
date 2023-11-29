@@ -7,11 +7,10 @@ const int _seed;
 const int _twidth, _theight;
 const double _aspect;
 
-const Vector _boundn[3];
 const double _boundx, _boundy;
 
 const Vector _gravity;
-const double _e, _mu, _bias, _pdm;
+const double _e, _mu, _bias, _pdth;
 
 const int _fps, _subframe;
 const double _dt;
