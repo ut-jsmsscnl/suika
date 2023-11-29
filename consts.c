@@ -3,8 +3,8 @@
 const int _seed = 20231129;
 
 const int _twidth = 120;
-const int _theight = 25;
-const double _aspect = 2.5333;
+const int _theight = 30;
+const double _aspect = 2.;
 
 const double _boundx = 2.;
 const double _boundy = 3.;
@@ -16,7 +16,7 @@ const double _bias = .2;
 const double _pdth = .01;
 
 const int _fps = 10;
-const int _subframe = 5;
+const int _subframe = 10;
 const double _dt = 1. / _fps / _subframe;
 
 const double _maxt = 10.;
@@ -24,8 +24,8 @@ const double _checkt = 1.;
 const int _maxf = (int)(_maxt * _fps);
 const int _checkf = (int)(_checkt * _fps);
 
-const double _xth = .1;
-const double _vth = .2;
+const double _xth = .05;
+const double _vth = .1;
 
 const int _ftn = 8;
 const int _dftn = 4;
