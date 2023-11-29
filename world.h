@@ -17,7 +17,7 @@ typedef struct _World {
 World *createWorld(int argc, char **argv);
 void deleteWorld(World *world);
 void parse(World *world, int argc, char **argv);
-char getPixel(World *world, int i, int j);
+void render(World *world, int i, int j);
 void display(World *world, int running);
 void updatePrev(World *world);
 void merge(World *world);

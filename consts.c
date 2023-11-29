@@ -30,8 +30,10 @@ const double _vth = .2;
 const int _ftn = 8;
 const int _dftn = 4;
 const double _fr[] = {.12, .15, .2, .25, .3, .35, .4, .5};
-const char _fc[] = {'1', '2', '3', '4', '5', '6', '7', '8'};
 const int _fs[] = {50, 150, 300, 750, 1500, 3000, 7500, 20000};
+const char _fch[] = {'1', '2', '3', '4', '5', '6', '7', '8'};
+const char *_fcol[] = {_BLUE, _RED, _CYAN, _MAGENTA,
+                       _BLUE, _RED, _YELLOW, _GREEN};
 const double _limity = 2 * _fr[_dftn - 1] + _fr[_ftn - 1];
 
 const int _drstep = 32;

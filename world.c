@@ -36,38 +36,44 @@ void parse(World *world, int argc, char **argv) {
     }
 }
 
-char getPixel(World *world, int i, int j) {
+void render(World *world, int i, int j) {
     Vector x = {(j + .5) * _boundx / world->width,
                 (i + .5) * _boundy / world->height};
     Fruit *f = world->dr.f;
     if(f != NULL) {
-        if(vecDist2(x, f->x) < f->r * f->r) return _fc[f->type];
+        if(vecDist2(x, f->x) < f->r * f->r) {
+            printf("%s", _fcol[f->type]);
+            putchar(_fch[f->type]);
+            printf(_DEF);
+            return;
+        }
     }
     f = world->f;
     while(f != NULL) {
-        if(vecDist2(x, f->x) < f->r * f->r) return _fc[f->type];
+        if(vecDist2(x, f->x) < f->r * f->r) {
+            printf("%s", _fcol[f->type]);
+            putchar(_fch[f->type]);
+            printf(_DEF);
+            return;
+        }
         f = f->prev;
     }
-    if(i == world->limiti) return 'X';
-    return ' ';
+    if(i == world->limiti) putchar('X');
+    else putchar(' ');
 }
 
 void display(World *world, int running) {
     system("clear");
-    printf("SCORE : %d\r\n", world->score);
+    printf(_GREEN "SCORE : %d\r\n" _DEF, world->score);
     for(int i = 0; i < world->height; i++) {
         putchar('|');
-        for(int j = 0; j < world->width; j++) {
-            putchar(getPixel(world, i, j));
-        }
+        for(int j = 0; j < world->width; j++) render(world, i, j);
         printf("|\r\n");
     }
     putchar('|');
-    for(int j = 0; j < world->width; j++) {
-        putchar('-');
-    }
+    for(int j = 0; j < world->width; j++) putchar('-');
     printf("|\r\n");
-    if(world->gameOver) printf("GAME OVER > ");
+    if(world->gameOver) printf(_RED "GAME OVER > " _DEF);
     else if(!running) printf("> ");
 }
 
