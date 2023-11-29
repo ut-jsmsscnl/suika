@@ -34,7 +34,6 @@ const int _fs[] = {50, 150, 300, 750, 1500, 3000, 7500, 20000};
 const char _fch[] = {'1', '2', '3', '4', '5', '6', '7', '8'};
 const char *_fcol[] = {_BLUE, _RED, _CYAN, _MAGENTA,
                        _BLUE, _RED, _YELLOW, _GREEN};
-const double _limity = 2 * _fr[_dftn - 1] + _fr[_ftn - 1];
 
 const int _drstep = 32;
 const double _drxn = .02;

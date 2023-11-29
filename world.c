@@ -6,7 +6,8 @@ World *createWorld(int argc, char **argv) {
     world->col = NULL;
     resetDropper(&(world->dr));
     parse(world, argc, argv);
-    world->limiti = (int)(_limity * world->height / _boundy);
+    world->limity = 2 * _fr[_dftn - 1] + _fr[_ftn - 1];
+    world->limiti = (int)(world->limity * world->height / _boundy);
     world->score = world->gameOver = 0;
     world->delay = (struct timespec){.tv_nsec = 1E9 / _fps};
     return world;
@@ -126,7 +127,7 @@ void checkGameOver(World *world) {
     world->gameOver = 0;
     Fruit *f = world->f;
     while(f != NULL) {
-        if(f->x.y < _limity) {
+        if(f->x.y < world->limity) {
             world->gameOver = 1;
             return;
         }

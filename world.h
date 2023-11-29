@@ -9,7 +9,9 @@ typedef struct _World {
     Fruit *f;
     ColPair *col;
     Dropper dr;
-    int width, height, limiti;
+    int width, height;
+    double limity;
+    int limiti;
     int score, stopped, merged, gameOver;
     struct timespec delay;
 } World;
