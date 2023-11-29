@@ -41,6 +41,13 @@ SCORE : 14650
 > 
 ```
 
+<details>
+<summary>Google Cloud Shell Editor で実行したときのスクリーンショット</summary>
+
+![Screenshot of the game](/images/ScreenshotGame.png)
+
+</details>
+
 ## メンバー
 JEONG Seung Min
 
@@ -102,6 +109,13 @@ SCORE : 0
 |------------------------------------|
 > 
 ```
+
+<details>
+<summary>Google Cloud Shell Editor で実行したときのスクリーンショット</summary>
+
+![Screenshot of initial screen](/images/ScreenshotInit.png)
+
+</details>
 
 最後の`>`は入力を待っている状態を表しています。この状態の時のみキーを押してください。
 
