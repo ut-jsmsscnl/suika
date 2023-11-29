@@ -1,10 +1,10 @@
 #include "fruit.h"
 
-Fruit *createFruit(double x, double y, int type) {
+Fruit *createFruit(Vector x, Vector v, int type) {
     Fruit *f = (Fruit*)malloc(sizeof(Fruit));
-    f->x = (Vector){x, y};
+    f->x = x;
     f->xp = (Vector){NAN, NAN};
-    f->v = (Vector){0., 0.};
+    f->v = v;
     f->type = type;
     f->r = _fr[type];
     f->m = f->r * f->r;

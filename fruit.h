@@ -16,7 +16,7 @@ typedef struct _ColPair {
     struct _ColPair *prev, *next;
 } ColPair;
 
-Fruit *createFruit(double x, double y, int type);
+Fruit *createFruit(Vector x, Vector v, int type);
 void addFruit(Fruit **f, Fruit *newf);
 void deleteFruit(Fruit **f, Fruit *delf);
 void addColPair(ColPair **col, Fruit *f1, Fruit *f2);

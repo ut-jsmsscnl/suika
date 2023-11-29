@@ -107,7 +107,8 @@ void merge(World *world) {
             }
             if(type < _ftn - 1) {
                 Vector x = vecMult(vecAdd(f1->x, f2->x), .5);
-                Fruit *newf = createFruit(x.x, x.y, type + 1);
+                Vector v = vecMult(vecAdd(f1->v, f2->v), .5);
+                Fruit *newf = createFruit(x, v, type + 1);
                 addFruit(&(world->f), newf);
             }
             deleteFruit(&(world->f), world->col->f1);
