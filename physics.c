@@ -75,7 +75,10 @@ double getNormalImpulse(Vector n, Vector v, double mr, double vb) {
 
 double getTangentImpulse(Vector t, Vector v, double mr, double jn) {
     double vt = vecDot(t, v);
-    if(vt < 0.) jn = -jn;
-    if(mr * vt / (_mu * jn) < 1.) return -mr * vt;
-    return -_mu * jn; 
+    if(vt > 0.) {
+        if(_mu * jn > mr * vt) return -mr * vt;
+        return -_mu * jn;
+    }
+    if(_mu * jn > mr * -vt) return -mr * vt;
+    return _mu * jn;
 }
