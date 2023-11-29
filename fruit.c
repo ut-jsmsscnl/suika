@@ -34,3 +34,19 @@ void addColPair(ColPair **col, Fruit *f1, Fruit *f2) {
     if(*col != NULL) (*col)->next = newcol;
     *col = newcol;
 }
+
+void resetDropper(Dropper *dr) {
+    dr->xs = _drstep / 2;
+    Vector x = (Vector){NAN, _fr[_dftn - 1]};
+    Vector v = (Vector){randRange(_drvn), randRange(_drvn)};
+    dr->f = createFruit(x, v, randInt(_dftn));
+    moveDropper(dr, 0);
+}
+
+void moveDropper(Dropper *dr, int dir) {
+    if(dir == -1 && dr->xs > 0) dr->xs--;
+    else if(dir == 1 && dr->xs < _drstep) dr->xs++;
+    double xstd = (double)dr->xs / _drstep;
+    double r = dr->f->r;
+    dr->f->x.x = (_boundx - 2 * r) * (xstd + randRange(_drxn)) + r;
+}

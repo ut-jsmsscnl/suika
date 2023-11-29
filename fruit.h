@@ -15,9 +15,16 @@ typedef struct _ColPair {
     struct _ColPair *prev, *next;
 } ColPair;
 
+typedef struct _Dropper {
+    Fruit *f;
+    int xs;
+} Dropper;
+
 Fruit *createFruit(Vector x, Vector v, int type);
 void addFruit(Fruit **f, Fruit *newf);
 void deleteFruit(Fruit **f, Fruit *delf);
 void addColPair(ColPair **col, Fruit *f1, Fruit *f2);
+void resetDropper(Dropper *dr);
+void moveDropper(Dropper *dr, int dir);
 
 #endif

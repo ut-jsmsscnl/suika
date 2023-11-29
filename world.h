@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <threads.h>
 #include "physics.h"
-#include "dropper.h"
 
 typedef struct _World {
     Fruit *f;
