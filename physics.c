@@ -2,7 +2,6 @@
 
 void applyGravity(Fruit *f) {
     while(f != NULL) {
-        f->j = (Vector){0., 0.};
         vecMultAddA(&(f->v), _gravity, _dt);
         f = f->prev;
     }
@@ -23,7 +22,7 @@ void checkBoundCol(Fruit *f) {
             if(pd[bi] > 0.) {
                 double vb = getBiasVel(pd[bi]);
                 Vector j = getImpulse(_boundn[bi], f->v, f->m, vb);
-                vecAddA(&(f->j), j);
+                vecMultAddA(&(f->v), j, 1 / f->m);
             }
         }
         f = f->prev;
@@ -43,8 +42,8 @@ void checkFruitCol(Fruit *f, ColPair **col) {
                 double rm = 1 / (1 / f1->m + 1 / f2->m);
                 double vb = getBiasVel(pd);
                 Vector j = getImpulse(n, v, rm, vb);
-                vecAddA(&(f1->j), j);
-                vecAddA(&(f2->j), vecMinus(j));
+                vecMultAddA(&(f1->v), j, 1 / f1->m);
+                vecMultAddA(&(f2->v), vecMinus(j), 1 / f2->m);
                 if(f1->type == f2->type) addColPair(col, f1, f2);
             }
             f2 = f2->prev;
@@ -53,9 +52,8 @@ void checkFruitCol(Fruit *f, ColPair **col) {
     }
 }
 
-void applyImpulse(Fruit *f) {
+void applyVelocity(Fruit *f) {
     while(f != NULL) {
-        vecMultAddA(&(f->v), f->j, 1 / f->m);
         vecMultAddA(&(f->x), f->v, _dt);
         f = f->prev;
     }

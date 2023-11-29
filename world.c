@@ -136,7 +136,7 @@ void run(World *world) {
             applyGravity(world->f);
             checkBoundCol(world->f);
             checkFruitCol(world->f, &(world->col));
-            applyImpulse(world->f);
+            applyVelocity(world->f);
             merge(world);
         }
         display(world, 1);

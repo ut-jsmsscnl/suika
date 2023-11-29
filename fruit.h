@@ -4,7 +4,7 @@
 #include "consts.h"
 
 typedef struct _Fruit {
-    Vector x, xp, v, j;
+    Vector x, xp, v;
     int type;
     double r, m;
     struct _Fruit *prev, *next;
